@@ -21,6 +21,10 @@ Akaunting is a libre, open source and online accounting software designed for sm
 
 > **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting/.env`
 
+If you need use a existing database, put your *.sql files on folder `volumes/mysql/dump`
+
+The database will persisted on folder `volumes/mysql/data`
+
 ## License
 
 This project follow Akaunting licensing under the GPLv3 license.
