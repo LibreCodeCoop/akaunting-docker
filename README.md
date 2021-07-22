@@ -18,7 +18,8 @@ Akaunting is a libre, open source and online accounting software designed for sm
 * Fill other environments on blocks "`# Need to setup`"
 * Run `docker-compose up`
 * Access the application URL
-* After finish the setup of application, copy the file volumes/akaunting/.env to .env preserving important environments
+
+> **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting/.env`
 
 ## License
 
