@@ -44,5 +44,6 @@ RUN cd $NVM_DIR && \
 RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc
 
 WORKDIR /akaunting
+COPY wait-for-db.php /usr/local/bin/wait-for-db.php
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
