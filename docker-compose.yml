@@ -21,3 +21,5 @@ services:
       - php
     ports:
       - 80:80
+  mariadb:
+    image: mariadb
