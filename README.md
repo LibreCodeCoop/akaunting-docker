@@ -1,6 +1,6 @@
-# Akaunting on Docker
+# Akaunting with Docker
 
-Run [Akaunting](https://github.com/akaunting/akaunting/) on a Docker container using `docker-compose`
+Running [Akaunting](https://github.com/akaunting/akaunting/) in a Docker container using `docker-compose`
 
 Akaunting is a libre, open source and online accounting software designed for small businesses and freelancers. It is built with modern technologies such as Laravel, VueJS, Bootstrap 4, RESTful API etc. Thanks to its modular structure, Akaunting provides an awesome App Store for users and developers.
 
@@ -27,4 +27,4 @@ The database will persisted on folder `volumes/mysql/data`
 
 ## License
 
-This project follow Akaunting licensing under the GPLv3 license.
+This project follows Akaunting licensing under the GPLv3 license.
