@@ -35,11 +35,13 @@ services:
       - php
     ports:
       - 80:80
-  mariadb:
-    image: mariadb
+  mysql:
+    image: mysql
     volumes:
       - ./volumes/mysql/data:/var/lib/mysql
       - ./volumes/mysql/dump:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
     environment:
-      - MARIADB_ROOT_PASSWORD
-      - MARIADB_DATABASE
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
