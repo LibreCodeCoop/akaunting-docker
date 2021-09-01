@@ -31,7 +31,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./volumes/akaunting:/akaunting:ro
-      - ~/volumes/certs:/etc/nginx/certs
     depends_on:
       - php
     ports:
