@@ -21,6 +21,8 @@ services:
       - DB_DATABASE
       - DB_USERNAME
       - DB_PASSWORD
+
+      - XDEBUG_CONFIG
   web:
     build:
       context: .docker/nginx

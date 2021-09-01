@@ -43,6 +43,12 @@ RUN cd $NVM_DIR && \
     npm install --global yarn
 RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc
 
+# Install xdebug
+RUN pecl install xdebug-3.0.4 \
+    && docker-php-ext-enable xdebug
+
+COPY config/php.ini /usr/local/etc/php/conf.d/
+
 WORKDIR /akaunting
 COPY wait-for-db.php /usr/local/bin/wait-for-db.php
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
