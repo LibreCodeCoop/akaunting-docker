@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -44,7 +44,7 @@ RUN cd $NVM_DIR && \
 RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc
 
 # Install xdebug
-RUN pecl install xdebug-3.0.4 \
+RUN pecl install xdebug-3.1.5 \
     && docker-php-ext-enable xdebug
 
 COPY config/php.ini /usr/local/etc/php/conf.d/
