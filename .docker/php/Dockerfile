@@ -47,6 +47,9 @@ RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc
 RUN pecl install xdebug-3.1.5 \
     && docker-php-ext-enable xdebug
 
+# Install intl
+RUN docker-php-ext-install intl
+
 COPY config/php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /akaunting
