@@ -2,58 +2,50 @@ FROM php:8.1-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libzip-dev \
-    imagemagick \
-    libicu-dev \
-    libmcrypt-dev \
-    libpng-dev \
-    libpq-dev \
-    libxrender1 \
-    locales \
-    openssh-client \
-    patch \
     rsync \
     unzip \
-    zlib1g-dev \
-    zip \
-    --no-install-recommends && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends \
+    # Install node
+    && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install --no-install-recommends -y nodejs \
+    && node --version \
+    && npm --version
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-
-RUN docker-php-ext-install \
-    gd \
+# Install PHP extensions
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
+    && install-php-extensions \
+    apcu \
     bcmath \
+    gd \
+    gmp \
+    exif \
+    imagick \
+    intl \
+    memcached \
+    mysqli \
+    opcache \
     pcntl \
     pdo \
-    pdo_pgsql \
     pdo_mysql \
-    zip
+    pdo_pgsql \
+    pgsql \
+    redis \
+    sockets \
+    sysvsem \
+    xdebug \
+    zip \
+    && rm /usr/local/bin/install-php-extensions \
+    # make possible ImageMagic handle PDF files
+    && sed -i'' 's|.*<policy domain="coder".*"PDF".*|<policy domain="coder" rights="read \| write" pattern="PDF" />|g' /etc/ImageMagick-6/policy.xml \
+    # pevent errors when try to create files at /var/www with user www-data
+    && chown -R www-data /var/www
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-ENV NVM_DIR=/opt/nvm
-RUN git clone https://github.com/nvm-sh/nvm.git $NVM_DIR
-RUN cd $NVM_DIR && \
-    git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)` && \
-    . $NVM_DIR/nvm.sh && \
-    nvm install 14 && \
-    nvm use node && \
-    npm install --global yarn
-RUN echo "source ${NVM_DIR}/nvm.sh" > $HOME/.bashrc
-
-# Install xdebug
-RUN pecl install xdebug-3.1.5 \
-    && docker-php-ext-enable xdebug
-
-# Install intl
-RUN docker-php-ext-install intl
-
 COPY config/php.ini /usr/local/etc/php/conf.d/
 
-WORKDIR /akaunting
+WORKDIR /var/www/html
 COPY wait-for-db.php /usr/local/bin/wait-for-db.php
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]

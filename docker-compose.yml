@@ -4,11 +4,13 @@ services:
   php:
     build: .docker/php
     volumes:
-      - ./volumes/akaunting:/akaunting
-      - ~/.composer:/root/.composer
-      - ~/.npm:/root/.npm/
+      - ./volumes/akaunting:/var/www/html
+      - ~/.composer:/var/www/.composer
+      - ~/.npm:/var/www/.npm/
     restart: unless-stopped
     environment:
+      - HOST_UID=${HOST_UID:-1000}
+      - HOST_GID=${HOST_GID:-1000}
       - AKAUNTING_VERSION
       - ADM_EMAIL
       - ADM_PASSWD
@@ -23,6 +25,8 @@ services:
       - DB_PASSWORD
 
       - XDEBUG_CONFIG
+    extra_hosts:
+      - host.docker.internal:host-gateway
   web:
     build:
       context: .docker/nginx
@@ -30,7 +34,7 @@ services:
         NGINX_CONF: http
     restart: unless-stopped
     volumes:
-      - ./volumes/akaunting:/akaunting:ro
+      - ./volumes/akaunting:/var/www/html:ro
     depends_on:
       - php
     ports:
@@ -43,5 +47,5 @@ services:
     ports:
       - 3306:3306
     environment:
-      - MYSQL_ROOT_PASSWORD
-      - MYSQL_DATABASE
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-akaunting}
