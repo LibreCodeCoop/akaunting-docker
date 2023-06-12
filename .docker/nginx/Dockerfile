@@ -7,4 +7,4 @@ ENV NGINX_PORT 80
 
 COPY "conf.d/${NGINX_CONF}.conf" /etc/nginx/templates/default.conf.template
 
-WORKDIR /akaunting
+WORKDIR /var/www/html

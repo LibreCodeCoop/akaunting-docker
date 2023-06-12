@@ -1,5 +1,9 @@
 #!/bin/bash
-. ${NVM_DIR}/nvm.sh
+
+# Set uid of host machine
+usermod --non-unique --uid "${HOST_UID}" www-data
+groupmod --non-unique --gid "${HOST_GID}" www-data
+
 php /usr/local/bin/wait-for-db.php
 if [ ! -f "vendor/autoload.php" ]; then
     git clone --progress -b "${AKAUNTING_VERSION}" --single-branch --depth 1 https://github.com/akaunting/akaunting /tmp/akaunting
