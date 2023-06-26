@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     --no-install-recommends \
     # Install node
-    && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+    && echo 'Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 600' > /etc/apt/preferences.d/nodesource \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install --no-install-recommends -y nodejs \
     && node --version \
     && npm --version
