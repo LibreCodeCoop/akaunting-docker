@@ -11,18 +11,19 @@ services:
     environment:
       - HOST_UID=${HOST_UID:-1000}
       - HOST_GID=${HOST_GID:-1000}
-      - AKAUNTING_VERSION
-      - ADM_EMAIL
-      - ADM_PASSWD
+      - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.0.17}
+      - ADM_EMAIL=${ADM_EMAIL:-admin@test.domain}
+      - ADM_PASSWD=${ADM_PASSWD:-admin}
 
-      - APP_ENV
+      - APP_ENV=${APP_ENV:-local}
 
-      - DB_CONNECTION
-      - DB_PORT
-      - DB_HOST
-      - DB_DATABASE
-      - DB_USERNAME
-      - DB_PASSWORD
+      - DB_CONNECTION=${DB_CONNECTION:-}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_HOST=${DB_HOST:-mysql}
+      - DB_DATABASE=${DB_DATABASE:-akaunting}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - DB_PREFIX=${DB_PREFIX:-}
 
       - XDEBUG_CONFIG
     extra_hosts:
