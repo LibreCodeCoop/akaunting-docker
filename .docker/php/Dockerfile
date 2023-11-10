@@ -4,13 +4,7 @@ RUN apt-get update && apt-get install -y \
     git \
     rsync \
     unzip \
-    --no-install-recommends \
-    # Install node
-    && echo 'Package: nodejs\nPin: origin deb.nodesource.com\nPin-Priority: 600' > /etc/apt/preferences.d/nodesource \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install --no-install-recommends -y nodejs \
-    && node --version \
-    && npm --version
+    --no-install-recommends
 
 # Install PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -41,6 +35,10 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
     && sed -i'' 's|.*<policy domain="coder".*"PDF".*|<policy domain="coder" rights="read \| write" pattern="PDF" />|g' /etc/ImageMagick-6/policy.xml \
     # pevent errors when try to create files at /var/www with user www-data
     && chown -R www-data /var/www
+
+COPY --from=node:20.5-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node:20.5-slim /usr/local/bin/node /usr/local/bin/node
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
