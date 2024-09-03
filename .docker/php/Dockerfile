@@ -28,7 +28,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
     redis \
     sockets \
     sysvsem \
-#    xdebug \
+    xdebug \
     zip \
     && rm /usr/local/bin/install-php-extensions \
     # make possible ImageMagic handle PDF files
