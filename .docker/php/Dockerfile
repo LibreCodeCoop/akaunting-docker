@@ -4,15 +4,7 @@ RUN apt-get update && apt-get install -y \
     git \
     rsync \
     unzip \
-    --no-install-recommends \
-    # Install node
-    && curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh \
-    && chmod 500 nsolid_setup_deb.sh \
-    && ./nsolid_setup_deb.sh 20 \
-    && rm nsolid_setup_deb.sh \
-    && apt-get install nodejs -y \
-    && node --version \
-    && npm --version
+    --no-install-recommends
 
 # Install PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -45,6 +37,13 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
     && chown -R www-data /var/www
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+# Install NVM
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash \
+    && export NVM_DIR="/root/.nvm" \
+    && . "$NVM_DIR/nvm.sh" \
+    && nvm install 20 \
+    && nvm alias default 20
 
 COPY config/php.ini /usr/local/etc/php/conf.d/
 
