@@ -18,7 +18,7 @@ if [ ! -f "vendor/autoload.php" ]; then
     php artisan key:generate
     composer dump-autoload
     php artisan install --no-interaction --db-host="${DB_HOST}" --db-port="${DB_PORT}" --db-name="${DB_DATABASE}" --db-username="${DB_USERNAME}" --db-password="${DB_PASSWORD}" --db-prefix="${DB_PREFIX}" --admin-email="${ADM_EMAIL}" --admin-password="${ADM_PASSWD}"
-    npm install
+    npm ci
     if [$APP_ENV == "production"]; then
         npm run production
     else
