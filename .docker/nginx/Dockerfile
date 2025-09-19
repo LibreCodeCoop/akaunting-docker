@@ -1,7 +1,6 @@
 ARG NGINX_CONF=http
 FROM nginx:alpine
-ARG NGINX_CONF
-ENV NGINX_PORT 80
+ENV NGINX_PORT=80
 
 # RUN echo "conf.d/${NGINX_CONF}.conf"
 
