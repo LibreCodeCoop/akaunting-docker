@@ -4,7 +4,10 @@ RUN apt-get update && apt-get install -y \
     git \
     rsync \
     unzip \
-    --no-install-recommends
+    python3 \
+    build-essential \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
@@ -43,7 +46,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | ba
     && export NVM_DIR="/root/.nvm" \
     && . "$NVM_DIR/nvm.sh" \
     && nvm install 20 \
-    && nvm alias default 20
+    && nvm alias default 20 \
+    && npm install -g npm@latest
 
 COPY config/php.ini /usr/local/etc/php/conf.d/
 

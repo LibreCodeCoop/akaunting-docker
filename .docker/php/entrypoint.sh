@@ -9,7 +9,8 @@ if [ ! -f "vendor/autoload.php" ]; then
     git clone --progress -b "${AKAUNTING_VERSION}" --single-branch --depth 1 https://github.com/akaunting/akaunting /tmp/akaunting
     rsync -r /tmp/akaunting/ .
     rm -rf /tmp/akaunting
-    if [$APP_ENV == "production"]; then
+
+    if [ $APP_ENV == "production" ]; then
         composer install --no-dev --no-scripts
     else
         composer install --no-scripts
@@ -19,7 +20,7 @@ if [ ! -f "vendor/autoload.php" ]; then
     composer dump-autoload
     php artisan install --no-interaction --db-host="${DB_HOST}" --db-port="${DB_PORT}" --db-name="${DB_DATABASE}" --db-username="${DB_USERNAME}" --db-password="${DB_PASSWORD}" --db-prefix="${DB_PREFIX}" --admin-email="${ADM_EMAIL}" --admin-password="${ADM_PASSWD}"
     npm ci
-    if [$APP_ENV == "production"]; then
+    if [ $APP_ENV == "production" ]; then
         npm run production
     else
         npm run dev
