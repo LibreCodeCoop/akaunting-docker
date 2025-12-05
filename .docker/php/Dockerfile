@@ -31,8 +31,6 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
     xdebug \
     zip \
     && rm /usr/local/bin/install-php-extensions \
-    # make possible ImageMagic handle PDF files
-    && sed -i'' 's|.*<policy domain="coder".*"PDF".*|<policy domain="coder" rights="read \| write" pattern="PDF" />|g' /etc/ImageMagick-6/policy.xml \
     # pevent errors when try to create files at /var/www with user www-data
     && chown -R www-data /var/www
 
