@@ -1,0 +1,45 @@
+diff --git a/app/Http/Kernel.php b/app/Http/Kernel.php
+index 7fda971c7..6fe58d406 100644
+--- a/app/Http/Kernel.php
++++ b/app/Http/Kernel.php
+@@ -50,7 +50,8 @@ class Kernel extends HttpKernel
+         'api' => [
+             'auth.basic.once',
+             'auth.disabled',
+-            'throttle:api',
++            //'throttle:api',
++            //'throttle:600000,1',
+             'permission:read-api',
+             'company.identify',
+             'bindings',
+diff --git a/app/Traits/Plans.php b/app/Traits/Plans.php
+index 02ce4d575..18361ed49 100644
+--- a/app/Traits/Plans.php
++++ b/app/Traits/Plans.php
+@@ -89,6 +89,26 @@ trait Plans
+     {
+         $key = 'plans.limits';
+ 
++            $data = json_decode(<<<JSON
++                {
++                    "user": {
++                        "action_status": true,
++                        "view_status": true,
++                        "message": ""
++                    },
++                    "company": {
++                        "action_status": true,
++                        "view_status": true,
++                        "message": ""
++                    },
++                    "invoice": {
++                        "action_status": true,
++                        "view_status": true,
++                        "message": ""
++                    }
++                }
++                JSON);
++            return $data;
+         return Cache::remember($key, Date::now()->addHour(), function () {
+             $url = 'plans/limits';
+ 
