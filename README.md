@@ -28,7 +28,7 @@ Example:
 ```yaml
 services:
   # Keep service names from docker-compose.yml and only override local behavior
-  mailhog:
+  mailpit:
     image: axllent/mailpit:latest
     ports:
       - 127.0.0.1:8025:8025
