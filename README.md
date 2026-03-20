@@ -19,6 +19,45 @@ Akaunting is a libre, open source and online accounting software designed for sm
 * Run `docker-compose up`
 * Access the application URL
 
+## Development Overrides (Local only)
+
+For local-only services and ports, use `docker-compose.override.yml` in your machine and do **not** commit this file.
+
+Example:
+
+```yaml
+services:
+  # Keep service names from docker-compose.yml and only override local behavior
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - 127.0.0.1:8025:8025
+      - 127.0.0.1:1025:1025
+
+  openbao:
+    image: openbao/openbao:latest
+    command: server -dev
+    environment:
+      BAO_DEV_ROOT_TOKEN_ID: dev-only-root-token
+      BAO_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 127.0.0.1:8200:8200
+    networks:
+      - internal
+
+  dufs:
+    image: sigoden/dufs:latest
+    command: /data -A --allow-upload --allow-delete
+    volumes:
+      - ./volumes/webdav:/data
+    ports:
+      - 127.0.0.1:5000:5000
+    networks:
+      - internal
+```
+
 > **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting/.env`
 
 If you need use a existing database, put your *.sql files on folder `volumes/mysql/dump`
