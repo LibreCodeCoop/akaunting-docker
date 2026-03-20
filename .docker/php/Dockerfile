@@ -26,6 +26,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
     pdo_pgsql \
     pgsql \
     redis \
+    soap \
     sockets \
     sysvsem \
     xdebug \
