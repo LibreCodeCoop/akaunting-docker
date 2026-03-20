@@ -1,5 +1,13 @@
+networks:
+  internal:
+    driver: bridge
+    name: internal
+  external:
+    external: true
+    name: external
+
 services:
-  php:
+  akaunting.php:
     build: .docker/php
     volumes:
       - ./volumes/akaunting:/var/www/html
@@ -23,10 +31,18 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-root}
       - DB_PREFIX=${DB_PREFIX:-}
 
+      - MAIL_HOST=${MAIL_HOST:-mailpit}
+      - MAIL_PORT=${MAIL_PORT:-1025}
+
+      - OPENBAO_ADDR=${OPENBAO_ADDR:-http://openbao:8200}
+      - OPENBAO_TOKEN=${OPENBAO_TOKEN:-dev-only-root-token}
+
       - XDEBUG_CONFIG
     extra_hosts:
       - host.docker.internal:host-gateway
-  web:
+    networks:
+      - internal
+  akaunting.nginx:
     build:
       context: .docker/nginx
       args:
@@ -35,16 +51,52 @@ services:
     volumes:
       - ./volumes/akaunting:/var/www/html:ro
     depends_on:
-      - php
+      - akaunting.php
     ports:
-      - 80:80
-  mysql:
+      - 8082:80
+    networks:
+      - internal
+      - external
+  akaunting.mysql:
     image: mysql
     volumes:
       - ./volumes/mysql/data:/var/lib/mysql
       - ./volumes/mysql/dump:/docker-entrypoint-initdb.d
     ports:
-      - 3306:3306
+      - 3307:3306
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-akaunting}
+    networks:
+      - internal
+      - external
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - 127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025
+      - 127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025
+    networks:
+      - internal
+
+  openbao:
+    image: openbao/openbao:latest
+    command: server -dev
+    environment:
+      - BAO_DEV_ROOT_TOKEN_ID=${OPENBAO_DEV_TOKEN:-dev-only-root-token}
+      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 127.0.0.1:${OPENBAO_PORT:-8200}:8200
+    networks:
+      - internal
+
+  dufs:
+    image: sigoden/dufs:latest
+    command: /data -A --allow-upload --allow-delete
+    volumes:
+      - ./volumes/webdav:/data
+    ports:
+      - 127.0.0.1:${DUFS_PORT:-5000}:5000
+    networks:
+      - internal
