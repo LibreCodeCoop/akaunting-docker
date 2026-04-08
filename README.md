@@ -38,14 +38,36 @@ services:
     image: openbao/openbao:latest
     command: server -dev
     environment:
-      BAO_DEV_ROOT_TOKEN_ID: dev-only-root-token
-      BAO_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      - BAO_DEV_ROOT_TOKEN_ID=${OPENBAO_DEV_TOKEN:-dev-only-root-token}
+      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
     cap_add:
       - IPC_LOCK
     ports:
       - 127.0.0.1:8200:8200
-    networks:
-      - internal
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8200/v1/sys/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  # One-shot init: creates the 'nfse' KV v2 mount and enables AppRole auth.
+  # Runs once after openbao is healthy; idempotent (|| true) so safe on restart.
+  openbao-init:
+    image: openbao/openbao:latest
+    depends_on:
+      openbao:
+        condition: service_healthy
+    environment:
+      - BAO_ADDR=http://openbao:8200
+      - BAO_TOKEN=${OPENBAO_DEV_TOKEN:-dev-only-root-token}
+    command: >
+      sh -c "
+        bao secrets enable -path=nfse kv-v2 2>/dev/null || true &&
+        bao auth enable approle 2>/dev/null || true &&
+        echo 'OpenBao: mount nfse (kv-v2) e AppRole habilitados.'
+      "
+    restart: on-failure
 
   dufs:
     image: sigoden/dufs:latest
@@ -54,8 +76,6 @@ services:
       - ./volumes/webdav:/data
     ports:
       - 127.0.0.1:5000:5000
-    networks:
-      - internal
 ```
 
 > **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting/.env`
