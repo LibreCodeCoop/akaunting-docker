@@ -37,16 +37,15 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync \
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-# Install NVM
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash \
-    && export NVM_DIR="/root/.nvm" \
-    && . "$NVM_DIR/nvm.sh" \
-    && nvm install 20 \
-    && nvm alias default 20
+# Install Node.js and npm from official Node image
+COPY --from=node:20-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node:20-bookworm-slim /usr/local/bin/node /usr/local/bin/node
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 COPY config/php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
 COPY wait-for-db.php /usr/local/bin/wait-for-db.php
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["bash", "/usr/local/bin/entrypoint.sh"]
