@@ -104,7 +104,7 @@ The database will persisted on folder `volumes/mysql/data`
 
 ## Update
 
-> Two files needed to be modified in production because Kimai is no longer a 100% open source project, be careful not to remove the changes made
+> Two files needed to be modified in production because Akaunting is no longer a 100% open source project, be careful not to remove the changes made
 
 * Update the image tag or Akaunting version in `.env`:
   ```bash
