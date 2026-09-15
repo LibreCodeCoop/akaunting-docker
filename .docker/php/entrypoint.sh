@@ -7,7 +7,7 @@ groupmod --non-unique --gid "${HOST_GID}" www-data
 
 AKAUNTING_DATA_DIR="${AKAUNTING_DATA_DIR:-/var/www/akaunting-data}"
 
-mkdir -p "${AKAUNTING_DATA_DIR}/storage" "${AKAUNTING_DATA_DIR}/bootstrap/cache"
+mkdir -p "${AKAUNTING_DATA_DIR}/storage" "${AKAUNTING_DATA_DIR}/bootstrap/cache" "${AKAUNTING_DATA_DIR}/modules"
 
 if [ ! -f "${AKAUNTING_DATA_DIR}/.env" ]; then
     cp /var/www/html/.env.example "${AKAUNTING_DATA_DIR}/.env"
@@ -32,6 +32,14 @@ if [ ! -e /var/www/html/bootstrap/cache ] || [ ! /var/www/html/bootstrap/cache -
     fi
     rm -rf /var/www/html/bootstrap/cache
     ln -s "${AKAUNTING_DATA_DIR}/bootstrap/cache" /var/www/html/bootstrap/cache
+fi
+
+if [ ! -e /var/www/html/modules ] || [ ! /var/www/html/modules -ef "${AKAUNTING_DATA_DIR}/modules" ]; then
+    if [ -d /var/www/html/modules ] && [ -z "$(find "${AKAUNTING_DATA_DIR}/modules" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+        rsync -a /var/www/html/modules/ "${AKAUNTING_DATA_DIR}/modules/"
+    fi
+    rm -rf /var/www/html/modules
+    ln -s "${AKAUNTING_DATA_DIR}/modules" /var/www/html/modules
 fi
 
 chown -R www-data:www-data "${AKAUNTING_DATA_DIR}" /var/www/html

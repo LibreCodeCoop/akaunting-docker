@@ -35,6 +35,7 @@ persistent:
 * `.env`
 * `storage`
 * `bootstrap/cache`
+* `modules`
 
 ## Development Overrides (Local only)
 
@@ -124,8 +125,8 @@ The database will persisted on folder `volumes/mysql/data`
 * If the production server runs out of memory while building frontend assets,
   publish a new image instead of running `npm run production` on the server.
 * Existing installations that used `volumes/akaunting` as the whole application
-  directory must migrate the generated `.env`, `storage`, and `bootstrap/cache`
-  contents to `volumes/akaunting-data`.
+  directory must migrate the generated `.env`, `storage`, `bootstrap/cache`,
+  and `modules` contents to `volumes/akaunting-data`.
 
 ## License
 

@@ -54,7 +54,9 @@ COPY ".docker/nginx/conf.d/${NGINX_CONF}.conf" /etc/nginx/templates/default.conf
 
 WORKDIR /var/www/html
 COPY --from=app /opt/akaunting /var/www/html
-RUN mkdir -p /var/www/akaunting-data/storage /var/www/akaunting-data/bootstrap/cache \
-    && rm -rf /var/www/html/storage /var/www/html/bootstrap/cache \
+RUN mkdir -p /var/www/akaunting-data/storage /var/www/akaunting-data/bootstrap/cache /var/www/akaunting-data/modules \
+    && cp -a /var/www/html/modules/. /var/www/akaunting-data/modules/ \
+    && rm -rf /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/modules \
     && ln -s /var/www/akaunting-data/storage /var/www/html/storage \
-    && ln -s /var/www/akaunting-data/bootstrap/cache /var/www/html/bootstrap/cache
+    && ln -s /var/www/akaunting-data/bootstrap/cache /var/www/html/bootstrap/cache \
+    && ln -s /var/www/akaunting-data/modules /var/www/html/modules
