@@ -1,10 +1,11 @@
 diff --git a/app/Http/Kernel.php b/app/Http/Kernel.php
-index 7fda971c7..6fe58d406 100644
+index 0faf218..1c0b3d1 100644
 --- a/app/Http/Kernel.php
 +++ b/app/Http/Kernel.php
-@@ -50,7 +50,8 @@ class Kernel extends HttpKernel
+@@ -52,7 +52,8 @@ class Kernel extends HttpKernel
          'api' => [
-             'auth.basic.once',
+             'header.www.authenticate', // Centralize WWW-Authenticate handling for API 401 responses
+             'auth.dynamic.once', // Unified: Bearer (OAuth) OR Basic Auth — auto-detected per request
              'auth.disabled',
 -            'throttle:api',
 +            //'throttle:api',
