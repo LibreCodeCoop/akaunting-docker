@@ -6,6 +6,11 @@ updates:
     schedule:
       interval: weekly
 
+  - package-ecosystem: docker-compose
+    directory: /dev
+    schedule:
+      interval: weekly
+
   - package-ecosystem: docker
     directory: /.docker/php
     schedule:
