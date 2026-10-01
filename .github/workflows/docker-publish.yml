@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
@@ -27,6 +25,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Resolve runtime version from Compose
+        id: runtime
+        shell: bash
+        run: |
+          image="$(docker compose config --images | grep 'akaunting-docker-php:' | head -n1)"
+          echo "version=${image##*:}" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -44,17 +49,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PHP }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=raw,value=${{ steps.runtime.outputs.version }}
             type=sha
 
       - name: Build and push PHP image
         uses: docker/build-push-action@v5
         with:
           context: .docker/php
+          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-php.outputs.tags }}
           labels: ${{ steps.meta-php.outputs.labels }}
@@ -67,11 +69,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_NGINX }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=raw,value=${{ steps.runtime.outputs.version }}
             type=sha
 
       - name: Build and push Nginx image
@@ -80,6 +78,7 @@ jobs:
           context: .docker/nginx
           build-args: |
             NGINX_CONF=http
+          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-nginx.outputs.tags }}
           labels: ${{ steps.meta-nginx.outputs.labels }}
