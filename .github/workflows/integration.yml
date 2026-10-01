@@ -1,0 +1,67 @@
+name: Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate configuration and scripts
+        run: |
+          docker compose config >/dev/null
+          bash -n .docker/php/entrypoint.sh
+          bash -n scripts/update-akaunting.sh
+          php -l .docker/php/wait-for-db.php
+
+      - name: Build branch runtime images
+        run: |
+          docker build             -t ghcr.io/librecodecoop/akaunting-docker-php:3             .docker/php
+          docker build             --build-arg NGINX_CONF=http             -t ghcr.io/librecodecoop/akaunting-docker-nginx:3             .docker/nginx
+
+      - name: Start Akaunting
+        env:
+          APP_ENV: production
+          HTTP_PORT: 8080
+        run: docker compose up -d
+
+      - name: Wait for HTTP response
+        run: |
+          for attempt in $(seq 1 120); do
+            if curl --fail --silent --show-error http://127.0.0.1:8080/ >/dev/null; then
+              exit 0
+            fi
+
+            if ! docker compose ps --status running | grep -q akaunting; then
+              docker compose ps
+            fi
+
+            sleep 5
+          done
+
+          echo "Akaunting did not become ready in time." >&2
+          exit 1
+
+      - name: Verify application and patch
+        run: |
+          docker compose exec -T akaunting.php php artisan --version
+          docker compose exec -T akaunting.php             git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down --remove-orphans
