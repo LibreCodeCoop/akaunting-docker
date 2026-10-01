@@ -19,24 +19,6 @@ Akaunting is a libre, open source and online accounting software designed for sm
 * Run `docker-compose up`
 * Access the application URL
 
-## Published Images
-
-The PHP and Nginx images include the Akaunting source code, the LibreCode patch
-from `patches/akaunting-modifications.patch`, Composer production dependencies,
-and the compiled production frontend assets.
-
-This keeps memory-heavy commands such as `npm ci` and `npm run production` in
-the GitHub Actions image build instead of running them on the production server.
-
-Mutable application data is stored outside the image in `volumes/akaunting-data`
-and mounted at `/var/www/akaunting-data`. The entrypoint keeps these paths
-persistent:
-
-* `.env`
-* `storage`
-* `bootstrap/cache`
-* `modules`
-
 ## Development Overrides (Local only)
 
 For local-only services and ports, use `docker-compose.override.yml` in your machine and do **not** commit this file.
@@ -96,7 +78,7 @@ services:
       - 127.0.0.1:5000:5000
 ```
 
-> **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting-data/.env`
+> **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting/.env`
 
 If you need use a existing database, put your *.sql files on folder `volumes/mysql/dump`
 
@@ -106,27 +88,32 @@ The database will persisted on folder `volumes/mysql/data`
 
 > Two files needed to be modified in production because Akaunting is no longer a 100% open source project, be careful not to remove the changes made
 
-* Update the image tag or Akaunting version in `.env`:
+* Go to the akaunting folder
   ```bash
   git pull origin main
-  docker compose pull
-  docker compose up -d
+  cd volumes/akaunting
   ```
 
-* Run the database/application update commands:
+* Get the latest version of akaunting and apply the required patches
   ```bash
-  docker compose exec akaunting.php php artisan update:all
-  docker compose exec akaunting.php php artisan cache:clear
-  docker compose exec akaunting.php php artisan optimize:clear
-  docker compose exec akaunting.php php artisan migrate
+  git pull origin master
+  git apply ../../patches/akaunting-modifications.patch
+  ```
+
+* Execute the following commands, one by one, do not copy and paste all at once:
+  ```bash
+  docker compose exec php npm ci
+  docker compose exec php npm run production
+  docker compose exec php composer prod
+  docker compose exec php php artisan update:all
+  docker compose exec php php artisan cache:clear
+  docker compose exec php php artisan optimize:clear
+  docker compose exec php php artisan migrate
+  chown -R www-data:www-data .
   ```
 
 ## Troubleshooting
-* If the production server runs out of memory while building frontend assets,
-  publish a new image instead of running `npm run production` on the server.
-* Existing installations that used `volumes/akaunting` as the whole application
-  directory must migrate the generated `.env`, `storage`, `bootstrap/cache`,
-  and `modules` contents to `volumes/akaunting-data`.
+* If you can't build the assets, copy the `volumes/akaunting/node_modules/` folder from another installation
 
 ## License
 

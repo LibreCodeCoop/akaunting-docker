@@ -1,8 +1,0 @@
-.git
-.github
-volumes
-node_modules
-vendor
-.env
-.env.*
-!.env.example
