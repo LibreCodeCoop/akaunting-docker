@@ -1,8 +1,8 @@
 services:
   akaunting.php:
-    # Akaunting version is the single source of truth for both the application
-    # checkout and the published runtime image tag.
-    image: ghcr.io/librecodecoop/akaunting-docker-php:${AKAUNTING_VERSION:-3.2.3}
+    # Runtime compatibility line for Akaunting 3. Bump this only when the
+    # supported Akaunting major requires a different Docker/PHP runtime.
+    image: ghcr.io/librecodecoop/akaunting-docker-php:${RUNTIME_VERSION:-3}
     build: .docker/php
     volumes:
       - ./volumes/akaunting:/var/www/html
@@ -12,6 +12,8 @@ services:
     environment:
       - HOST_UID=${HOST_UID:-1000}
       - HOST_GID=${HOST_GID:-1000}
+
+      # Akaunting application version installed in /var/www/html.
       - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.2.3}
       - ADM_EMAIL=${ADM_EMAIL:-admin@test.domain}
       - ADM_PASSWD=${ADM_PASSWD:-admin}
@@ -36,7 +38,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
   akaunting.nginx:
-    image: ghcr.io/librecodecoop/akaunting-docker-nginx:${AKAUNTING_VERSION:-3.2.3}
+    image: ghcr.io/librecodecoop/akaunting-docker-nginx:${RUNTIME_VERSION:-3}
     build:
       context: .docker/nginx
       args:
