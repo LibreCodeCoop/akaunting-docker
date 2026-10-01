@@ -1,3 +1,4 @@
 .vscode
 volumes/
 .env
+docker-compose.override.yml
