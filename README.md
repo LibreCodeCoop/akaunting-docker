@@ -80,6 +80,20 @@ services:
       - 127.0.0.1:5000:5000
 ```
 
+To test local runtime builds instead of the published GHCR images, add the build definitions to your local `docker-compose.override.yml`:
+
+```yaml
+services:
+  akaunting.php:
+    build: .docker/php
+
+  akaunting.nginx:
+    build:
+      context: .docker/nginx
+      args:
+        NGINX_CONF: http
+```
+
 > **PS**: After setup, Akaunting keeps its own application environment file at `volumes/akaunting/.env`. A root-level `.env` is optional and is only used by Docker Compose to override defaults.
 
 If you need use a existing database, put your *.sql files on folder `volumes/mysql/dump`
