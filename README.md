@@ -59,7 +59,7 @@ If the LibreCode patch no longer applies to a new upstream release, the update s
 
 ## Development services
 
-Development-only services are kept in `compose.dev.yml` rather than in the base Compose file.
+Development-only services are kept in `dev/docker-compose.yml` rather than in the base Compose file.
 
 It adds:
 
@@ -72,7 +72,7 @@ It adds:
 Start the development stack with:
 
 ```bash
-docker compose -f docker-compose.yml -f compose.dev.yml up -d
+docker compose -f docker-compose.yml -f dev/docker-compose.yml up -d
 ```
 
 Mailpit is available at `http://127.0.0.1:8025`, OpenBao at `127.0.0.1:8200`, and Dufs at `http://127.0.0.1:5000`.
