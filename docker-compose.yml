@@ -14,7 +14,7 @@ services:
 
       # Akaunting application version installed in /var/www/html.
       # renovate: datasource=github-releases depName=akaunting/akaunting
-      - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.2.3}
+      - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.2.4}
       - ADM_EMAIL=${ADM_EMAIL:-admin@test.domain}
       - ADM_PASSWD=${ADM_PASSWD:-admin}
 
