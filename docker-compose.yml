@@ -1,6 +1,6 @@
 services:
   akaunting.php:
-    image: ghcr.io/librecodecoop/akaunting-docker-php:${AKAUNTING_IMAGE_TAG:-main}
+    image: ghcr.io/librecodecoop/akaunting-docker-php:${AKAUNTING_VERSION:-3.2.3}
     build: .docker/php
     volumes:
       - ./volumes/akaunting:/var/www/html
@@ -34,7 +34,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
   akaunting.nginx:
-    image: ghcr.io/librecodecoop/akaunting-docker-nginx:${AKAUNTING_IMAGE_TAG:-main}
+    image: ghcr.io/librecodecoop/akaunting-docker-nginx:${AKAUNTING_VERSION:-3.2.3}
     build:
       context: .docker/nginx
       args:
