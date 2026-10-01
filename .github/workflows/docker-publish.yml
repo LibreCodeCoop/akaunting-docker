@@ -25,12 +25,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Read Akaunting version
+      - name: Resolve image version from Compose
         id: akaunting
         shell: bash
         run: |
-          version="$(docker compose config --format json | jq -r '.services["akaunting.php"].environment.AKAUNTING_VERSION')"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+          image="$(docker compose config --images | grep 'akaunting-docker-php:' | head -n1)"
+          echo "version=${image##*:}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
