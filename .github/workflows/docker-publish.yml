@@ -15,6 +15,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME_PHP: ${{ github.repository }}-php
   IMAGE_NAME_NGINX: ${{ github.repository }}-nginx
+  AKAUNTING_VERSION: 3.2.3
 
 jobs:
   build-and-push:
@@ -54,7 +55,10 @@ jobs:
       - name: Build and push PHP image
         uses: docker/build-push-action@v5
         with:
-          context: .docker/php
+          context: .
+          file: .docker/php/Dockerfile
+          build-args: |
+            AKAUNTING_VERSION=${{ env.AKAUNTING_VERSION }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-php.outputs.tags }}
           labels: ${{ steps.meta-php.outputs.labels }}
@@ -77,9 +81,11 @@ jobs:
       - name: Build and push Nginx image
         uses: docker/build-push-action@v5
         with:
-          context: .docker/nginx
+          context: .
+          file: .docker/nginx/Dockerfile
           build-args: |
             NGINX_CONF=http
+            AKAUNTING_VERSION=${{ env.AKAUNTING_VERSION }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-nginx.outputs.tags }}
           labels: ${{ steps.meta-nginx.outputs.labels }}

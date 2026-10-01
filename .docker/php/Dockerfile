@@ -43,9 +43,18 @@ COPY --from=node:20-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
-COPY config/php.ini /usr/local/etc/php/conf.d/
+COPY .docker/php/config/php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
-COPY wait-for-db.php /usr/local/bin/wait-for-db.php
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+ARG AKAUNTING_VERSION=3.2.3
+ENV AKAUNTING_VERSION=${AKAUNTING_VERSION}
+COPY patches/akaunting-modifications.patch /tmp/akaunting-modifications.patch
+COPY .docker/php/build-akaunting-app.sh /usr/local/bin/build-akaunting-app.sh
+RUN bash /usr/local/bin/build-akaunting-app.sh \
+    && rm -f /tmp/akaunting-modifications.patch /usr/local/bin/build-akaunting-app.sh \
+    && rm -rf /var/www/html \
+    && cp -a /opt/akaunting /var/www/html
+
+COPY .docker/php/wait-for-db.php /usr/local/bin/wait-for-db.php
+COPY .docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["bash", "/usr/local/bin/entrypoint.sh"]

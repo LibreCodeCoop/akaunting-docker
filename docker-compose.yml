@@ -1,15 +1,20 @@
 services:
   akaunting.php:
-    build: .docker/php
+    image: ghcr.io/librecodecoop/akaunting-docker-php:${AKAUNTING_IMAGE_TAG:-main}
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+      args:
+        AKAUNTING_VERSION: ${AKAUNTING_VERSION:-3.2.3}
     volumes:
-      - ./volumes/akaunting:/var/www/html
+      - ./volumes/akaunting-data:/var/www/akaunting-data
       - ~/.composer:/var/www/.composer
       - ~/.npm:/var/www/.npm/
     restart: unless-stopped
     environment:
       - HOST_UID=${HOST_UID:-1000}
       - HOST_GID=${HOST_GID:-1000}
-      - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.1.21}
+      - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.2.3}
       - ADM_EMAIL=${ADM_EMAIL:-admin@test.domain}
       - ADM_PASSWD=${ADM_PASSWD:-admin}
 
@@ -33,13 +38,16 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
   akaunting.nginx:
+    image: ghcr.io/librecodecoop/akaunting-docker-nginx:${AKAUNTING_IMAGE_TAG:-main}
     build:
-      context: .docker/nginx
+      context: .
+      dockerfile: .docker/nginx/Dockerfile
       args:
         NGINX_CONF: http
+        AKAUNTING_VERSION: ${AKAUNTING_VERSION:-3.2.3}
     restart: unless-stopped
     volumes:
-      - ./volumes/akaunting:/var/www/html:ro
+      - ./volumes/akaunting-data:/var/www/akaunting-data:ro
     depends_on:
       - akaunting.php
     ports:
