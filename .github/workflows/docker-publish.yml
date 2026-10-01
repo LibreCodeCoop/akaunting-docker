@@ -28,7 +28,9 @@ jobs:
       - name: Read Akaunting version
         id: akaunting
         shell: bash
-        run: echo "version=$(grep '^AKAUNTING_VERSION=' .env.example | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+        run: |
+          version="$(docker compose config --format json | jq -r '.services["akaunting.php"].environment.AKAUNTING_VERSION')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
