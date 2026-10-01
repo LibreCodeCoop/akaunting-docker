@@ -45,7 +45,7 @@ jobs:
 
       - name: Extract metadata for PHP image
         id: meta-php
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PHP }}
           tags: |
@@ -65,7 +65,7 @@ jobs:
 
       - name: Extract metadata for Nginx image
         id: meta-nginx
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_NGINX }}
           tags: |
