@@ -1,5 +1,7 @@
 services:
   akaunting.php:
+    # Akaunting version is the single source of truth for both the application
+    # checkout and the published runtime image tag.
     image: ghcr.io/librecodecoop/akaunting-docker-php:${AKAUNTING_VERSION:-3.2.3}
     build: .docker/php
     volumes:
@@ -11,6 +13,8 @@ services:
       - HOST_UID=${HOST_UID:-1000}
       - HOST_GID=${HOST_GID:-1000}
       - AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.2.3}
+
+      # Override these in a local .env file for production deployments.
       - ADM_EMAIL=${ADM_EMAIL:-admin@test.domain}
       - ADM_PASSWD=${ADM_PASSWD:-admin}
 
