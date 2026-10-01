@@ -10,6 +10,14 @@ updates:
     directory: /.docker/php
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: php
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: docker
     directory: /.docker/nginx
