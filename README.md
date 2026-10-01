@@ -13,11 +13,13 @@ Akaunting is a libre, open source and online accounting software designed for sm
 
 * Install Docker and docker-compose
 * clone this repository
-* copy `.env.example` to `.env`
-* Update `AKAUNTING_VERSION` value to use the akaunting version of your preference. Get the latest version from https://github.com/akaunting/akaunting/releases/latest
-* Fill other environments on blocks "`# Need to setup`"
-* Run `docker-compose up`
+* Review the defaults in `docker-compose.yml`
+* Optionally create a local `.env` file only for values that need to override those defaults
+* Run `docker compose pull`
+* Run `docker compose up`
 * Access the application URL
+
+The `AKAUNTING_VERSION` default in `docker-compose.yml` is also used as the tag for the published PHP and Nginx images. Override it in a local `.env` file only when you intentionally want to use another supported Akaunting version.
 
 ## Development Overrides (Local only)
 
@@ -78,7 +80,7 @@ services:
       - 127.0.0.1:5000:5000
 ```
 
-> **PS**: After finish setup you will see two `.env` files: one on root of repository only used to setup Akaunting and other on `volumes/akaunting/.env`
+> **PS**: After setup, Akaunting keeps its own application environment file at `volumes/akaunting/.env`. A root-level `.env` is optional and is only used by Docker Compose to override defaults.
 
 If you need use a existing database, put your *.sql files on folder `volumes/mysql/dump`
 
