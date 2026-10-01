@@ -1,136 +1,194 @@
 # Akaunting with Docker
 
-Running [Akaunting](https://github.com/akaunting/akaunting/) in a Docker container using `docker-compose`
+Docker runtime and Compose configuration maintained by LibreCodeCoop for running [Akaunting](https://github.com/akaunting/akaunting/) with PHP-FPM and Nginx.
 
-Akaunting is a libre, open source and online accounting software designed for small businesses and freelancers. It is built with modern technologies such as Laravel, VueJS, Bootstrap 4, RESTful API etc. Thanks to its modular structure, Akaunting provides an awesome App Store for users and developers.
+The repository publishes reusable PHP and Nginx runtime images to GHCR. The Akaunting application itself remains in `./volumes/akaunting`, so application data and source are independent from the runtime image lifecycle.
 
 ## Requirements
 
-* Docker
-* docker-compose
+- Docker Engine
+- Docker Compose v2 (`docker compose`)
 
-## Instalation
+## Quick start
 
-* Install Docker and docker-compose
-* clone this repository
-* Review the defaults in `docker-compose.yml`
-* Optionally create a local `.env` file only for values that need to override those defaults
-* Run `docker compose pull`
-* Run `docker compose up`
-* Access the application URL
+Clone this repository and start the base stack:
 
-The runtime images use a compatibility-line tag defined by `RUNTIME_VERSION`. Akaunting 3 currently uses runtime `3`, while the exact application release is controlled independently by `AKAUNTING_VERSION`.
-
-## Development Overrides (Local only)
-
-For local-only services and ports, use `docker-compose.override.yml` in your machine and do **not** commit this file.
-
-Example:
-
-```yaml
-services:
-  # Keep service names from docker-compose.yml and only override local behavior
-  mailpit:
-    image: axllent/mailpit:latest
-    ports:
-      - 127.0.0.1:8025:8025
-      - 127.0.0.1:1025:1025
-
-  openbao:
-    image: openbao/openbao:latest
-    command: server -dev
-    environment:
-      - BAO_DEV_ROOT_TOKEN_ID=${OPENBAO_DEV_TOKEN:-dev-only-root-token}
-      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
-    cap_add:
-      - IPC_LOCK
-    ports:
-      - 127.0.0.1:8200:8200
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8200/v1/sys/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 12
-      start_period: 5s
-
-  # One-shot init: creates the 'nfse' KV v2 mount and enables AppRole auth.
-  # Runs once after openbao is healthy; idempotent (|| true) so safe on restart.
-  openbao-init:
-    image: openbao/openbao:latest
-    depends_on:
-      openbao:
-        condition: service_healthy
-    environment:
-      - BAO_ADDR=http://openbao:8200
-      - BAO_TOKEN=${OPENBAO_DEV_TOKEN:-dev-only-root-token}
-    command: >
-      sh -c "
-        bao secrets enable -path=nfse kv-v2 2>/dev/null || true &&
-        bao auth enable approle 2>/dev/null || true &&
-        echo 'OpenBao: mount nfse (kv-v2) e AppRole habilitados.'
-      "
-    restart: on-failure
-
-  dufs:
-    image: sigoden/dufs:latest
-    command: /data -A --allow-upload --allow-delete
-    volumes:
-      - ./volumes/webdav:/data
-    ports:
-      - 127.0.0.1:5000:5000
+```bash
+docker compose pull
+docker compose up -d
 ```
 
-To test local runtime builds instead of the published GHCR images, add the build definitions to your local `docker-compose.override.yml`:
+The base stack contains:
 
-```yaml
-services:
-  akaunting.php:
-    build: .docker/php
+- the LibreCode PHP runtime;
+- the LibreCode Nginx runtime;
+- MySQL 8.4 for a self-contained local database.
 
-  akaunting.nginx:
-    build:
-      context: .docker/nginx
-      args:
-        NGINX_CONF: http
+Akaunting is installed into `volumes/akaunting` on the first start.
+
+The runtime compatibility line is controlled by `RUNTIME_VERSION`. Akaunting 3 currently uses runtime line `3`:
+
+```text
+ghcr.io/librecodecoop/akaunting-docker-php:3
+ghcr.io/librecodecoop/akaunting-docker-nginx:3
 ```
 
-> **PS**: After setup, Akaunting keeps its own application environment file at `volumes/akaunting/.env`. A root-level `.env` is optional and is only used by Docker Compose to override defaults.
+The exact Akaunting release used for a new installation is controlled separately by `AKAUNTING_VERSION`.
 
-If you need use a existing database, put your *.sql files on folder `volumes/mysql/dump`
+## Application version
 
-The database will persisted on folder `volumes/mysql/data`
+The default application version is declared in `docker-compose.yml`:
 
-## Update
+```yaml
+AKAUNTING_VERSION=${AKAUNTING_VERSION:-3.2.4}
+```
 
-> Two files needed to be modified in production because Akaunting is no longer a 100% open source project, be careful not to remove the changes made
+Renovate monitors upstream Akaunting releases and proposes updates to this value.
 
-* Go to the akaunting folder
-  ```bash
-  git pull origin main
-  cd volumes/akaunting
-  ```
+Changing `AKAUNTING_VERSION` does **not** automatically upgrade an existing installation when the container restarts. This is intentional: upgrades are explicit operations.
 
-* Get the latest version of akaunting and apply the required patches
-  ```bash
-  git pull origin master
-  git apply ../../patches/akaunting-modifications.patch
-  ```
+To update an existing installation after reviewing and merging an Akaunting version update:
 
-* Execute the following commands, one by one, do not copy and paste all at once:
-  ```bash
-  docker compose exec php npm ci
-  docker compose exec php npm run production
-  docker compose exec php composer prod
-  docker compose exec php php artisan update:all
-  docker compose exec php php artisan cache:clear
-  docker compose exec php php artisan optimize:clear
-  docker compose exec php php artisan migrate
-  chown -R www-data:www-data .
-  ```
+```bash
+bash scripts/update-akaunting.sh
+```
+
+The update command checks out the selected Akaunting tag, applies the LibreCode patch, refreshes Composer and frontend dependencies, runs Akaunting's update command and database migrations, and clears optimized caches.
+
+If the LibreCode patch no longer applies to a new upstream release, the update stops instead of continuing with a partially patched installation.
+
+## Development services
+
+Development-only services are kept in `compose.dev.yml` rather than in the base Compose file.
+
+It adds:
+
+- Mailpit;
+- OpenBao;
+- OpenBao initialization for the `nfse` KV v2 mount;
+- Dufs;
+- local Composer and npm caches.
+
+Start the development stack with:
+
+```bash
+docker compose -f docker-compose.yml -f compose.dev.yml up -d
+```
+
+Mailpit is available at `http://127.0.0.1:8025`, OpenBao at `127.0.0.1:8200`, and Dufs at `http://127.0.0.1:5000`.
+
+## Machine-specific overrides
+
+Use a local `docker-compose.override.yml` for settings that belong only to one machine or deployment, such as:
+
+- external reverse-proxy networks;
+- an external MySQL service;
+- local domain names;
+- deployment-specific environment variables.
+
+The override file is ignored by Git and must not be committed.
+
+A root-level `.env` is also optional and is used only by Docker Compose to override defaults.
+
+Akaunting keeps its own application environment file at:
+
+```text
+volumes/akaunting/.env
+```
+
+## Building the runtime locally
+
+The default Compose file consumes published GHCR images and intentionally does not contain `build:` entries.
+
+To test local runtime changes, build the images using the same names expected by Compose:
+
+```bash
+docker build \
+  -t ghcr.io/librecodecoop/akaunting-docker-php:3 \
+  .docker/php
+
+docker build \
+  --build-arg NGINX_CONF=http \
+  -t ghcr.io/librecodecoop/akaunting-docker-nginx:3 \
+  .docker/nginx
+
+docker compose up -d
+```
+
+## Database
+
+The base stack stores MySQL data in:
+
+```text
+volumes/mysql/data
+```
+
+SQL files placed in:
+
+```text
+volumes/mysql/dump
+```
+
+are made available to the MySQL image through `/docker-entrypoint-initdb.d`.
+
+The MySQL port is not published on the host by default. If direct host access is required for development, expose it in `docker-compose.override.yml`.
+
+To use an external database, override `DB_HOST`, credentials and networks as needed and disable the `akaunting.mysql` service in the local deployment configuration.
+
+## LibreCode patch
+
+`patches/akaunting-modifications.patch` contains LibreCode-specific changes to the upstream application.
+
+The patch is:
+
+- applied automatically during a fresh installation;
+- applied by `scripts/update-akaunting.sh` during upgrades;
+- checked by the integration workflow against the selected Akaunting release.
+
+Do not manually `git pull` the Akaunting `master` branch inside `volumes/akaunting`. The installation is intentionally tied to the release selected by `AKAUNTING_VERSION`.
+
+## Dependency updates
+
+Dependency maintenance is split deliberately:
+
+- **Renovate** updates only `AKAUNTING_VERSION`;
+- **Dependabot** updates Docker Compose images, Dockerfile images and GitHub Actions.
+
+Docker base images are pinned by immutable digest while retaining a readable tag. Dependabot can update the tag/digest pair when a supported update is available.
+
+PHP stays on the Akaunting-supported 8.3 line unless compatibility is intentionally reviewed. Node.js stays on the upstream-supported Node 20 line.
+
+## Continuous integration
+
+Pull requests run two kinds of validation:
+
+1. runtime image builds;
+2. an integration smoke test that:
+   - validates Compose and scripts;
+   - builds the branch PHP and Nginx images;
+   - installs the selected Akaunting release;
+   - verifies that the LibreCode patch applies;
+   - starts the stack and checks the HTTP endpoint.
+
+This is especially important for automated Akaunting and dependency update pull requests.
 
 ## Troubleshooting
-* If you can't build the assets, copy the `volumes/akaunting/node_modules/` folder from another installation
+
+Inspect the effective Compose configuration:
+
+```bash
+docker compose config
+```
+
+Inspect container state and logs:
+
+```bash
+docker compose ps
+docker compose logs
+```
 
 ## License
 
-This project follows Akaunting licensing under the GPLv3 license.
+The Docker tooling and original files maintained in this repository are distributed under GPL-3.0; see `LICENCE`.
+
+Akaunting itself is a separate upstream project and is distributed under the license declared by the selected Akaunting release. Refer to the license files and package metadata shipped by upstream Akaunting for the applicable terms.
