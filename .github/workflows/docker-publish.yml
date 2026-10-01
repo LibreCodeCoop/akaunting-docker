@@ -9,6 +9,8 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: '17 4 * * 1'
   workflow_dispatch:
 
 env:
@@ -50,11 +52,13 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
+            type=raw,value=main,enable=${{ github.event_name == 'schedule' }}
 
       - name: Build and push PHP image
         uses: docker/build-push-action@v5
         with:
           context: .docker/php
+          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-php.outputs.tags }}
           labels: ${{ steps.meta-php.outputs.labels }}
@@ -73,6 +77,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
+            type=raw,value=main,enable=${{ github.event_name == 'schedule' }}
 
       - name: Build and push Nginx image
         uses: docker/build-push-action@v5
@@ -80,6 +85,7 @@ jobs:
           context: .docker/nginx
           build-args: |
             NGINX_CONF=http
+          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-nginx.outputs.tags }}
           labels: ${{ steps.meta-nginx.outputs.labels }}
