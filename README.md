@@ -19,7 +19,7 @@ Akaunting is a libre, open source and online accounting software designed for sm
 * Run `docker compose up`
 * Access the application URL
 
-The `AKAUNTING_VERSION` default in `docker-compose.yml` is also used as the tag for the published PHP and Nginx images. Override it in a local `.env` file only when you intentionally want to use another supported Akaunting version.
+The runtime images use a compatibility-line tag defined by `RUNTIME_VERSION`. Akaunting 3 currently uses runtime `3`, while the exact application release is controlled independently by `AKAUNTING_VERSION`.
 
 ## Development Overrides (Local only)
 
