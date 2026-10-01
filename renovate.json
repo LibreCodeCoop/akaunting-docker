@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabledManagers": ["custom.regex"],
+  "dependencyDashboard": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^docker-compose\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+- AKAUNTING_VERSION=\\$\\{AKAUNTING_VERSION:-(?<currentValue>[^}]+)\\}"
+      ],
+      "versioningTemplate": "semver"
+    }
+  ]
+}
