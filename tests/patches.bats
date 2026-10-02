@@ -29,7 +29,7 @@ load test_helper
   git reset --hard -q HEAD~1
 
   PATCH_DIR="${committed_dir}" LOCAL_PATCH_DIR="${local_dir}" \
-    run bash "${BATS_TEST_DIRNAME}/../.docker/php/apply-patches.sh"
+    run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/apply-patches.sh"
 
   [ "$status" -eq 0 ]
   [ "$(cat sample.txt)" = $'committed\nlocal' ]
@@ -56,10 +56,10 @@ load test_helper
   git checkout -- sample.txt
 
   PATCH_DIR="${patch_dir}" LOCAL_PATCH_DIR="${empty_local}" \
-    bash "${BATS_TEST_DIRNAME}/../.docker/php/apply-patches.sh"
+    bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/apply-patches.sh"
 
   PATCH_DIR="${patch_dir}" LOCAL_PATCH_DIR="${empty_local}" \
-    run bash "${BATS_TEST_DIRNAME}/../.docker/php/apply-patches.sh"
+    run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/apply-patches.sh"
 
   [ "$status" -eq 0 ]
   [[ "$output" == *"Patch already applied: 10.patch"* ]]
@@ -89,7 +89,7 @@ diff --git a/sample.txt b/sample.txt
 EOF
 
   run env PATCH_DIR="${patch_dir}" LOCAL_PATCH_DIR="${BATS_TEST_TMPDIR}/missing" \
-    bash "${BATS_TEST_DIRNAME}/../.docker/php/apply-patches.sh"
+    bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/apply-patches.sh"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"Patch does not apply cleanly: 10-bad.patch"* ]]
