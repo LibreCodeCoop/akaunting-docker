@@ -1,15 +1,39 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "enabledManagers": ["custom.regex"],
+  "enabledManagers": [
+    "custom.regex"
+  ],
   "dependencyDashboard": false,
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^docker-compose\\.ya?ml$/"],
+      "managerFilePatterns": [
+        "/^docker-compose\\.ya?ml$/"
+      ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+- AKAUNTING_VERSION=\\$\\{AKAUNTING_VERSION:-(?<currentValue>[^}]+)\\}"
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/actionlint\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION: (?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "semver-coerced"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.docker\\/php\\/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG NPM_VERSION=(?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "semver-coerced"
     }
   ]
 }

@@ -1,0 +1,127 @@
+name: Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate configuration and scripts
+        run: |
+          docker compose config --quiet
+          docker compose -f docker-compose.yml -f dev/docker-compose.yml config --quiet
+          bash -n .docker/php/shell/entrypoint.sh
+          bash -n .docker/php/shell/apply-patches.sh
+          bash -n .docker/php/shell/lib/akaunting.sh
+          bash -n .docker/php/shell/update-akaunting.sh
+          bash -n scripts/update-akaunting.sh
+          php -l .docker/php/php/wait-for-db.php
+
+      - name: Build branch runtime images
+        run: |
+          docker build \
+            -t ghcr.io/librecodecoop/akaunting-docker-php:3 \
+            .docker/php
+
+          docker build \
+            --build-arg NGINX_CONF=http \
+            -t ghcr.io/librecodecoop/akaunting-docker-nginx:3 \
+            .docker/nginx
+
+
+      - name: Prepare local patch fixture
+        run: |
+          mkdir -p volumes/patches
+          cat > volumes/patches/99-ci-local.patch <<'EOF'
+          diff --git a/.local-patch-smoke b/.local-patch-smoke
+          new file mode 100644
+          --- /dev/null
+          +++ b/.local-patch-smoke
+          @@ -0,0 +1 @@
+          +local patch applied
+          EOF
+
+      - name: Start Akaunting
+        env:
+          APP_ENV: production
+          HTTP_PORT: 8080
+        run: docker compose up -d
+
+      - name: Wait for HTTP response
+        run: |
+          for _ in $(seq 1 120); do
+            if curl --fail --silent --show-error http://127.0.0.1:8080/ >/dev/null; then
+              exit 0
+            fi
+
+            docker compose ps
+            sleep 5
+          done
+
+          echo "Akaunting did not become ready in time." >&2
+          exit 1
+
+      - name: Verify application and patches
+        run: |
+          docker compose exec -T akaunting.php php artisan --version
+          docker compose exec -T akaunting.php \
+            git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
+          docker compose exec -T akaunting.php \
+            grep -qx 'local patch applied' /var/www/html/.local-patch-smoke
+
+      - name: Verify restart is idempotent
+        run: |
+          env_before="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+
+          docker compose restart akaunting.php
+
+          for _ in $(seq 1 60); do
+            if docker compose exec -T akaunting.php php artisan --version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+
+          env_after="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+          test "$env_before" = "$env_after"
+
+      - name: Verify missing vendor is recovered without reinstalling
+        run: |
+          env_before="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+
+          docker compose exec -T akaunting.php rm -f vendor/autoload.php
+          docker compose restart akaunting.php
+
+          for _ in $(seq 1 120); do
+            if docker compose exec -T akaunting.php test -f vendor/autoload.php \
+              && docker compose exec -T akaunting.php php artisan --version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+
+          docker compose exec -T akaunting.php test -f vendor/autoload.php
+          env_after="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+          test "$env_before" = "$env_after"
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down --remove-orphans

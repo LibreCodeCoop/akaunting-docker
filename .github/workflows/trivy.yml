@@ -1,0 +1,50 @@
+name: Trivy
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build PHP runtime
+        run: |
+          docker build \
+            -t ghcr.io/librecodecoop/akaunting-docker-php:3 \
+            .docker/php
+
+      - name: Scan PHP runtime
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/librecodecoop/akaunting-docker-php:3
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
+
+      - name: Build Nginx runtime
+        run: |
+          docker build \
+            --build-arg NGINX_CONF=http \
+            -t ghcr.io/librecodecoop/akaunting-docker-nginx:3 \
+            .docker/nginx
+
+      - name: Scan Nginx runtime
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/librecodecoop/akaunting-docker-nginx:3
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
