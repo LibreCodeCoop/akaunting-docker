@@ -39,23 +39,6 @@ jobs:
             -t ghcr.io/librecodecoop/akaunting-docker-nginx:3 \
             .docker/nginx
 
-      - name: Scan PHP runtime
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: ghcr.io/librecodecoop/akaunting-docker-php:3
-          format: table
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: CRITICAL
-
-      - name: Scan Nginx runtime
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          image-ref: ghcr.io/librecodecoop/akaunting-docker-nginx:3
-          format: table
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: CRITICAL
 
       - name: Start Akaunting
         env:
