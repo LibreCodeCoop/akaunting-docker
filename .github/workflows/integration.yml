@@ -24,12 +24,12 @@ jobs:
         run: |
           docker compose config --quiet
           docker compose -f docker-compose.yml -f dev/docker-compose.yml config --quiet
-          bash -n .docker/php/entrypoint.sh
-          bash -n .docker/php/apply-patches.sh
-          bash -n .docker/php/akaunting.sh
-          bash -n .docker/php/update-akaunting.sh
+          bash -n .docker/php/shell/entrypoint.sh
+          bash -n .docker/php/shell/apply-patches.sh
+          bash -n .docker/php/shell/lib/akaunting.sh
+          bash -n .docker/php/shell/update-akaunting.sh
           bash -n scripts/update-akaunting.sh
-          php -l .docker/php/wait-for-db.php
+          php -l .docker/php/php/wait-for-db.php
 
       - name: Build branch runtime images
         run: |
