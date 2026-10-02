@@ -35,5 +35,16 @@
       ],
       "versioningTemplate": "semver-coerced"
     }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchDepNames": [
+        "npm"
+      ],
+      "allowedVersions": "<12"
+    }
   ]
 }
