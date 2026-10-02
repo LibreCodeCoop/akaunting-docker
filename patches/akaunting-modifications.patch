@@ -13,7 +13,7 @@ diff --git a/app/Http/Kernel.php b/app/Http/Kernel.php
 diff --git a/app/Traits/Plans.php b/app/Traits/Plans.php
 --- a/app/Traits/Plans.php
 +++ b/app/Traits/Plans.php
-@@ -88,6 +88,25 @@ trait Plans
+@@ -88,6 +88,24 @@ trait Plans
      {
          $key = 'plans.limits';
  
