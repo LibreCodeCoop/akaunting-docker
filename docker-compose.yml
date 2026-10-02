@@ -6,6 +6,7 @@ services:
     volumes:
       - ./volumes/akaunting:/var/www/html
       - ./patches:/opt/akaunting/patches:ro
+      - ./patches.local:/opt/akaunting/patches.local:ro
     restart: unless-stopped
     environment:
       - HOST_UID=${HOST_UID:-1000}
