@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# shellcheck source=akaunting.sh
+# shellcheck source=.docker/php/akaunting.sh
 source "${AKAUNTING_LIB:-/usr/local/lib/akaunting.sh}"
 
 usermod --non-unique --uid "${HOST_UID}" www-data
