@@ -21,12 +21,12 @@ fi
 
 if [ -f "${PATCH_FILE}" ] && [ -d ".git" ]; then
     if git apply --reverse --check "${PATCH_FILE}" >/dev/null 2>&1; then
-        echo "LibreCode patch already applied."
+        echo "Patch already applied."
     elif git apply --check "${PATCH_FILE}"; then
         git apply "${PATCH_FILE}"
-        echo "LibreCode patch applied."
+        echo "Patch applied."
     else
-        echo "The LibreCode patch does not apply cleanly to Akaunting ${AKAUNTING_VERSION}." >&2
+        echo "The patch does not apply cleanly to Akaunting ${AKAUNTING_VERSION}." >&2
         exit 1
     fi
 fi
