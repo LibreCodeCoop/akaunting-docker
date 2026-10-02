@@ -49,5 +49,6 @@ COPY config/php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
 COPY wait-for-db.php /usr/local/bin/wait-for-db.php
+COPY apply-patches.sh /usr/local/bin/apply-patches.sh
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["bash", "/usr/local/bin/entrypoint.sh"]
