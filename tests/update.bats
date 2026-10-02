@@ -28,7 +28,7 @@ setup() {
   create_fake_lifecycle_lib
 
   AKAUNTING_VERSION=3.2.4 AKAUNTING_LIB="${TEST_LIFECYCLE_LIB}" \
-    run bash "${BATS_TEST_DIRNAME}/../.docker/php/update-akaunting.sh"
+    run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/update-akaunting.sh"
 
   [ "$status" -eq 0 ]
   expected=$'checkout\npatches\nrefresh-dependencies\nupgrade\nownership'
@@ -38,7 +38,7 @@ setup() {
 @test "container update requires AKAUNTING_VERSION" {
   create_fake_lifecycle_lib
 
-  AKAUNTING_LIB="${TEST_LIFECYCLE_LIB}" run bash "${BATS_TEST_DIRNAME}/../.docker/php/update-akaunting.sh"
+  AKAUNTING_LIB="${TEST_LIFECYCLE_LIB}" run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/update-akaunting.sh"
 
   [ "$status" -ne 0 ]
   [[ "$output" == *"AKAUNTING_VERSION is not set"* ]]
