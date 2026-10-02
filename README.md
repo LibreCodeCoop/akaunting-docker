@@ -53,9 +53,9 @@ To update an existing installation after reviewing and merging an Akaunting vers
 bash scripts/update-akaunting.sh
 ```
 
-The update command checks out the selected Akaunting tag, applies the LibreCode patch, refreshes Composer and frontend dependencies, runs Akaunting's update command and database migrations, and clears optimized caches.
+The update command checks out the selected Akaunting tag, applies the repository patch, refreshes Composer and frontend dependencies, runs Akaunting's update command and database migrations, and clears optimized caches.
 
-If the LibreCode patch no longer applies to a new upstream release, the update stops instead of continuing with a partially patched installation.
+If the patch no longer applies to a new upstream release, the update stops instead of continuing with a partially patched installation.
 
 ## Development services
 
@@ -135,9 +135,9 @@ The MySQL port is not published on the host by default. If direct host access is
 
 To use an external database, override `DB_HOST`, credentials and networks as needed and disable the `akaunting.mysql` service in the local deployment configuration.
 
-## LibreCode patch
+## Application patch
 
-`patches/akaunting-modifications.patch` contains LibreCode-specific changes to the upstream application.
+`patches/akaunting-modifications.patch` contains local changes to the upstream application.
 
 The patch is:
 
@@ -167,7 +167,7 @@ Pull requests run two kinds of validation:
    - validates Compose and scripts;
    - builds the branch PHP and Nginx images;
    - installs the selected Akaunting release;
-   - verifies that the LibreCode patch applies;
+   - verifies that the patch applies;
    - starts the stack and checks the HTTP endpoint.
 
 This is especially important for automated Akaunting and dependency update pull requests.
@@ -187,8 +187,3 @@ docker compose ps
 docker compose logs
 ```
 
-## License
-
-The Docker tooling and original files maintained in this repository are distributed under GPL-3.0; see `LICENCE`.
-
-Akaunting itself is a separate upstream project and is distributed under the license declared by the selected Akaunting release. Refer to the license files and package metadata shipped by upstream Akaunting for the applicable terms.
