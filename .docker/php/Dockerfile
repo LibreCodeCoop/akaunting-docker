@@ -44,7 +44,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 # renovate: datasource=npm depName=npm
-ARG NPM_VERSION=11.21.0
+ARG NPM_VERSION=12.2.0
 RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && npm install --global "npm@${NPM_VERSION}" \
