@@ -59,30 +59,27 @@ EOF
 
   printf 'committed\n' > sample.txt
   git diff > "${committed_dir}/10-committed.patch"
-  git checkout -- sample.txt
+  git add sample.txt
+  git commit -qm committed
 
-  printf 'base\nlocal\n' > sample.txt
+  printf 'committed\nlocal\n' > sample.txt
   git diff > "${local_dir}/20-local.patch"
-  git checkout -- sample.txt
 
-  mkdir -p /opt/akaunting
-  ln -s "${committed_dir}" /opt/akaunting/patches
-  ln -s "${local_dir}" /opt/akaunting/patches.local
+  git reset --hard -q HEAD~1
 
-  run bash "${OLDPWD}/.docker/php/apply-patches.sh"
-
-  rm /opt/akaunting/patches /opt/akaunting/patches.local
+  PATCH_DIR="${committed_dir}" LOCAL_PATCH_DIR="${local_dir}" \
+    run bash "${OLDPWD}/.docker/php/apply-patches.sh"
 
   [ "$status" -eq 0 ]
-  grep -q '^committed$' sample.txt
-  grep -q '^local$' sample.txt
+  [ "$(cat sample.txt)" = $'committed\nlocal' ]
 }
 
 @test "patch helper is idempotent" {
   repo_dir="${BATS_TEST_TMPDIR}/patch-idempotent-repo"
   patch_dir="${BATS_TEST_TMPDIR}/patch-idempotent"
+  empty_local="${BATS_TEST_TMPDIR}/empty-local"
 
-  mkdir -p "${repo_dir}" "${patch_dir}"
+  mkdir -p "${repo_dir}" "${patch_dir}" "${empty_local}"
   cd "${repo_dir}"
 
   git init -q
@@ -97,16 +94,12 @@ EOF
   git diff > "${patch_dir}/10.patch"
   git checkout -- sample.txt
 
-  mkdir -p /opt/akaunting
-  ln -s "${patch_dir}" /opt/akaunting/patches
-  mkdir -p "${BATS_TEST_TMPDIR}/empty-local"
-  ln -s "${BATS_TEST_TMPDIR}/empty-local" /opt/akaunting/patches.local
+  PATCH_DIR="${patch_dir}" LOCAL_PATCH_DIR="${empty_local}" \
+    bash "${OLDPWD}/.docker/php/apply-patches.sh"
 
-  bash "${OLDPWD}/.docker/php/apply-patches.sh"
-  run bash "${OLDPWD}/.docker/php/apply-patches.sh"
-
-  rm /opt/akaunting/patches /opt/akaunting/patches.local
+  PATCH_DIR="${patch_dir}" LOCAL_PATCH_DIR="${empty_local}" \
+    run bash "${OLDPWD}/.docker/php/apply-patches.sh"
 
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Patch already applied"* ]]
+  [[ "$output" == *"Patch already applied: 10.patch"* ]]
 }
