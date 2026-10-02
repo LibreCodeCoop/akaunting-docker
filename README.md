@@ -144,7 +144,7 @@ Patches are applied in two stages:
 1. committed `patches/*.patch` files;
 2. private deployment patches from `volumes/patches/*.patch`.
 
-Both are applied automatically during first setup and explicit upgrades. Files under `volumes/patches/` are persistent local deployment state and are never versioned because the entire `volumes/` tree is ignored by Git.
+Both are applied automatically during first setup and explicit upgrades. Files under `volumes/patches/` are persistent local deployment state and are never versioned because the entire `volumes/` tree is ignored by Git. Removing a local patch file does not reverse a patch that is already present in the persistent Akaunting checkout; run `bash scripts/update-akaunting.sh` for the selected version to reset the upstream checkout and apply the current patch set again.
 
 Do not manually `git pull` the Akaunting `master` branch inside `volumes/akaunting`. The installation is intentionally tied to the release selected by `AKAUNTING_VERSION`.
 
