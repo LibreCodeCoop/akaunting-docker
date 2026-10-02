@@ -10,31 +10,3 @@ diff --git a/app/Http/Kernel.php b/app/Http/Kernel.php
              'permission:read-api',
              'company.identify',
              'bindings',
-diff --git a/app/Traits/Plans.php b/app/Traits/Plans.php
---- a/app/Traits/Plans.php
-+++ b/app/Traits/Plans.php
-@@ -88,6 +88,24 @@ trait Plans
-     {
-         $key = 'plans.limits';
- 
-+        return (object) [
-+            'user' => (object) [
-+                'action_status' => true,
-+                'view_status' => true,
-+                'message' => '',
-+            ],
-+            'company' => (object) [
-+                'action_status' => true,
-+                'view_status' => true,
-+                'message' => '',
-+            ],
-+            'invoice' => (object) [
-+                'action_status' => true,
-+                'view_status' => true,
-+                'message' => '',
-+            ],
-+        ];
-+
-         return Cache::remember($key, Date::now()->addHour(), function () {
-             $url = 'plans/limits';
- 
