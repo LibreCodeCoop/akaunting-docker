@@ -27,5 +27,5 @@ apply_patch_dir() {
     done < <(find "$patch_dir" -maxdepth 1 -type f -name '*.patch' -print0 | sort -z)
 }
 
-apply_patch_dir /opt/akaunting/patches
-apply_patch_dir /opt/akaunting/patches.local
+apply_patch_dir "${PATCH_DIR:-/opt/akaunting/patches}"
+apply_patch_dir "${LOCAL_PATCH_DIR:-/opt/akaunting/patches.local}"
