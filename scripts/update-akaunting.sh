@@ -20,7 +20,7 @@ if [ -f "${patch_file}" ]; then
     if git apply --check "${patch_file}"; then
         git apply "${patch_file}"
     else
-        echo "The LibreCode patch does not apply cleanly to Akaunting ${AKAUNTING_VERSION}." >&2
+        echo "The patch does not apply cleanly to Akaunting ${AKAUNTING_VERSION}." >&2
         exit 1
     fi
 fi
