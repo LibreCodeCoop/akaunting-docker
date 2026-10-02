@@ -137,13 +137,14 @@ To use an external database, override `DB_HOST`, credentials and networks as nee
 
 ## Application patch
 
-`patches/akaunting-modifications.patch` contains a local technical change to the upstream application. Licensing information for patched upstream code is kept alongside the patch in `patches/LICENSE.txt`.
+`patches/akaunting-modifications.patch` contains the patch distributed with this repository. Deployment-specific patches belong in `volumes/patches/`, which is ignored by Git and mounted read-only into the PHP container.
 
-The patch is:
+Patches are applied in two stages:
 
-- applied automatically during a fresh installation;
-- applied by `scripts/update-akaunting.sh` during upgrades;
-- checked by the integration workflow against the selected Akaunting release.
+1. committed `patches/*.patch` files;
+2. private deployment patches from `volumes/patches/*.patch`.
+
+Both are applied automatically during first setup and explicit upgrades. Files under `volumes/patches/` are persistent local deployment state and are never versioned because the entire `volumes/` tree is ignored by Git.
 
 Do not manually `git pull` the Akaunting `master` branch inside `volumes/akaunting`. The installation is intentionally tied to the release selected by `AKAUNTING_VERSION`.
 
