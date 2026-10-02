@@ -137,7 +137,7 @@ To use an external database, override `DB_HOST`, credentials and networks as nee
 
 ## Application patch
 
-`patches/akaunting-modifications.patch` contains local changes to the upstream application.
+`patches/akaunting-modifications.patch` contains a local technical change to the upstream application. Licensing information for patched upstream code is kept alongside the patch in `patches/LICENSE.txt`.
 
 The patch is:
 
