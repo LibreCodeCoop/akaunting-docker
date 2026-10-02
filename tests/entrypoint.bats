@@ -21,7 +21,7 @@ setup() {
   mkdir -p "${TEST_APP_ROOT}/vendor"
   touch "${TEST_APP_ROOT}/vendor/autoload.php"
 
-  run bash "${BATS_TEST_DIRNAME}/../.docker/php/entrypoint.sh"
+  run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
   [ "$(cat "${TEST_LIFECYCLE_LOG}")" = "patches" ]
@@ -29,7 +29,7 @@ setup() {
 }
 
 @test "fresh installation runs lifecycle in deterministic order" {
-  run bash "${BATS_TEST_DIRNAME}/../.docker/php/entrypoint.sh"
+  run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
   expected=$'clone\npatches\nphp-dependencies\ninstall\nownership'
@@ -39,7 +39,7 @@ setup() {
 @test "missing vendor restores dependencies without reinstalling application" {
   touch "${TEST_APP_ROOT}/artisan" "${TEST_APP_ROOT}/.env"
 
-  run bash "${BATS_TEST_DIRNAME}/../.docker/php/entrypoint.sh"
+  run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
   expected=$'patches\nphp-dependencies'
@@ -51,7 +51,7 @@ setup() {
   mkdir -p "${TEST_APP_ROOT}/vendor"
   touch "${TEST_APP_ROOT}/vendor/autoload.php"
 
-  run bash "${BATS_TEST_DIRNAME}/../.docker/php/entrypoint.sh"
+  run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
   expected=$'patches\ninstall'
