@@ -43,6 +43,18 @@ jobs:
             .docker/nginx
 
 
+      - name: Prepare local patch fixture
+        run: |
+          mkdir -p volumes/patches
+          cat > volumes/patches/99-ci-local.patch <<'EOF'
+          diff --git a/.local-patch-smoke b/.local-patch-smoke
+          new file mode 100644
+          --- /dev/null
+          +++ b/.local-patch-smoke
+          @@ -0,0 +1 @@
+          +local patch applied
+          EOF
+
       - name: Start Akaunting
         env:
           APP_ENV: production
@@ -63,11 +75,13 @@ jobs:
           echo "Akaunting did not become ready in time." >&2
           exit 1
 
-      - name: Verify application and patch
+      - name: Verify application and patches
         run: |
           docker compose exec -T akaunting.php php artisan --version
           docker compose exec -T akaunting.php \
             git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
+          docker compose exec -T akaunting.php \
+            grep -qx 'local patch applied' /var/www/html/.local-patch-smoke
 
       - name: Verify restart is idempotent
         run: |
