@@ -65,7 +65,7 @@ jobs:
 
       - name: Wait for HTTP response
         run: |
-          for attempt in $(seq 1 120); do
+          for _ in $(seq 1 120); do
             if curl --fail --silent --show-error http://127.0.0.1:8080/ >/dev/null; then
               exit 0
             fi
@@ -89,7 +89,7 @@ jobs:
 
           docker compose restart akaunting.php
 
-          for attempt in $(seq 1 60); do
+          for _ in $(seq 1 60); do
             if docker compose exec -T akaunting.php php artisan --version >/dev/null 2>&1; then
               break
             fi
@@ -106,7 +106,7 @@ jobs:
           docker compose exec -T akaunting.php rm -f vendor/autoload.php
           docker compose restart akaunting.php
 
-          for attempt in $(seq 1 120); do
+          for _ in $(seq 1 120); do
             if docker compose exec -T akaunting.php test -f vendor/autoload.php \
               && docker compose exec -T akaunting.php php artisan --version >/dev/null 2>&1; then
               break
