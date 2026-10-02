@@ -39,11 +39,16 @@ RUN install-php-extensions \
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
-# Install Node.js and npm from the pinned Node image.
+# Install Node.js from the pinned image and keep npm on a supported,
+# security-patched release that is still compatible with Node 20.
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
+# renovate: datasource=npm depName=npm
+ARG NPM_VERSION=11.20.0
 RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
-    && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+    && ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+    && npm install --global "npm@${NPM_VERSION}" \
+    && npm cache clean --force
 
 COPY config/php.ini /usr/local/etc/php/conf.d/
 
