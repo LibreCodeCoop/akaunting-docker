@@ -20,10 +20,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Prepare Compose override
+        run: cp docker-compose.override.example.yml docker-compose.override.yml
+
       - name: Validate configuration and scripts
         run: |
           docker compose config --quiet
-          docker compose -f docker-compose.yml -f dev/docker-compose.yml config --quiet
           bash -n .docker/php/shell/entrypoint.sh
           bash -n .docker/php/shell/apply-patches.sh
           bash -n .docker/php/shell/lib/akaunting.sh

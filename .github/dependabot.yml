@@ -8,13 +8,6 @@ updates:
     cooldown:
       default-days: 7
 
-  - package-ecosystem: docker-compose
-    directory: /dev
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 7
-
   - package-ecosystem: docker
     directory: /.docker/php
     schedule:
