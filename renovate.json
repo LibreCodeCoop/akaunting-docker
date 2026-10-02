@@ -10,6 +10,14 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+- AKAUNTING_VERSION=\\$\\{AKAUNTING_VERSION:-(?<currentValue>[^}]+)\\}"
       ],
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/actionlint\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ACTIONLINT_VERSION: (?<currentValue>\\S+)"
+      ],
+      "versioningTemplate": "semver-coerced"
     }
   ]
 }
