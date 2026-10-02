@@ -2,3 +2,5 @@
 volumes/
 .env
 docker-compose.override.yml
+patches.local/*
+!patches.local/README.md
