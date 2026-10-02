@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source /usr/local/lib/akaunting.sh
+source "${AKAUNTING_LIB:-/usr/local/lib/akaunting.sh}"
 
 usermod --non-unique --uid "${HOST_UID}" www-data
 groupmod --non-unique --gid "${HOST_GID}" www-data
