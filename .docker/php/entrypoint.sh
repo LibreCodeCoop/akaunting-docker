@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-PATCH_FILE="/opt/akaunting/patches/akaunting-modifications.patch"
-
 # Match the container user with the host user for bind-mounted files.
 usermod --non-unique --uid "${HOST_UID}" www-data
 groupmod --non-unique --gid "${HOST_GID}" www-data
@@ -19,17 +17,7 @@ if [ ! -f "artisan" ]; then
     rm -rf /tmp/akaunting
 fi
 
-if [ -f "${PATCH_FILE}" ] && [ -d ".git" ]; then
-    if git apply --reverse --check "${PATCH_FILE}" >/dev/null 2>&1; then
-        echo "Patch already applied."
-    elif git apply --check "${PATCH_FILE}"; then
-        git apply "${PATCH_FILE}"
-        echo "Patch applied."
-    else
-        echo "The patch does not apply cleanly to Akaunting ${AKAUNTING_VERSION}." >&2
-        exit 1
-    fi
-fi
+/usr/local/bin/apply-patches.sh
 
 if [ ! -f "vendor/autoload.php" ]; then
     if [ "${APP_ENV}" = "production" ]; then
