@@ -11,18 +11,30 @@ The repository publishes reusable PHP and Nginx runtime images to GHCR. The Akau
 
 ## Quick start
 
-Clone this repository and start the base stack:
+Clone this repository, create your local Compose override from the example, and start the stack:
 
 ```bash
+cp docker-compose.override.example.yml docker-compose.override.yml
 docker compose pull
 docker compose up -d
 ```
 
-The base stack contains:
+`docker-compose.override.yml` is intentionally ignored by Git. Docker Compose loads it automatically together with `docker-compose.yml`, so the normal workflow remains:
 
-- the LibreCode PHP runtime;
-- the LibreCode Nginx runtime;
-- MySQL 8.4 for a self-contained local database.
+```bash
+docker compose up -d
+docker compose down
+```
+
+The example override adds the development/homologation services used by this project:
+
+- Mailpit;
+- OpenBao;
+- OpenBao initialization for the `nfse` KV v2 mount;
+- Dufs;
+- local Composer and npm caches.
+
+Because the local override is not versioned, each environment can change networks, external database settings, reverse-proxy configuration, ports, domains, or development services without modifying the repository.
 
 Akaunting is installed into `volumes/akaunting` on the first start.
 
@@ -57,38 +69,30 @@ The update command checks out the selected Akaunting tag, applies the repository
 
 If the patch no longer applies to a new upstream release, the update stops instead of continuing with a partially patched installation.
 
-## Development services
+## Local Compose override
 
-Development-only services are kept in `dev/docker-compose.yml` rather than in the base Compose file.
+The repository intentionally does **not** version `docker-compose.override.yml`.
 
-It adds:
-
-- Mailpit;
-- OpenBao;
-- OpenBao initialization for the `nfse` KV v2 mount;
-- Dufs;
-- local Composer and npm caches.
-
-Start the development stack with:
+Use the tracked example as a starting point:
 
 ```bash
-docker compose -f docker-compose.yml -f dev/docker-compose.yml up -d
+cp docker-compose.override.example.yml docker-compose.override.yml
 ```
 
-Mailpit is available at `http://127.0.0.1:8025`, OpenBao at `127.0.0.1:8200`, and Dufs at `http://127.0.0.1:5000`.
+Then edit `docker-compose.override.yml` for the local environment. Since Docker Compose loads this file automatically, no extra `-f` arguments are needed.
 
-## Machine-specific overrides
-
-Use a local `docker-compose.override.yml` for settings that belong only to one machine or deployment, such as:
+Typical local customizations include:
 
 - external reverse-proxy networks;
 - an external MySQL service;
 - local domain names;
+- host port mappings;
+- OpenBao, Mailpit and Dufs settings;
 - deployment-specific environment variables.
 
-The override file is ignored by Git and must not be committed.
+The tracked `docker-compose.override.example.yml` documents the supported development/homologation setup without forcing those choices on every checkout.
 
-A root-level `.env` is also optional and is used only by Docker Compose to override defaults.
+A root-level `.env` is optional and is used by Docker Compose to override variable defaults.
 
 Akaunting keeps its own application environment file at:
 
