@@ -25,6 +25,7 @@ jobs:
           docker compose config --quiet
           docker compose -f docker-compose.yml -f dev/docker-compose.yml config --quiet
           bash -n .docker/php/entrypoint.sh
+          bash -n .docker/php/apply-patches.sh
           bash -n scripts/update-akaunting.sh
           php -l .docker/php/wait-for-db.php
 
