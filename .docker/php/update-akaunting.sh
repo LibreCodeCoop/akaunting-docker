@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source /usr/local/lib/akaunting.sh
+source "${AKAUNTING_LIB:-/usr/local/lib/akaunting.sh}"
 
 : "${AKAUNTING_VERSION:?AKAUNTING_VERSION is not set}"
 
