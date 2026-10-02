@@ -1,9 +1,7 @@
-# Akaunting application patch
+# Application patches
 
-The patch in this directory modifies files from the upstream Akaunting project.
+Files in this directory are committed patches that are safe to distribute with this repository.
 
-Akaunting 3.2.x is distributed under the Business Source License 1.1. The upstream license text applicable to the patched source is reproduced in `LICENSE.txt`.
+They are applied automatically, in filename order, during first setup and explicit Akaunting upgrades.
 
-The patch in this repository is intentionally limited to the technical API throttling change required by this deployment. It does not remove or override Akaunting plan, company, user, or invoice limits.
-
-Any deployment of Akaunting must independently comply with the upstream license and, where applicable, the terms of any commercial license obtained from Akaunting.
+The installed Akaunting checkout keeps its upstream `LICENSE.txt`. Applying a patch does not change the license terms that govern the installed Akaunting version. See the upstream license shipped with Akaunting for the applicable terms.
