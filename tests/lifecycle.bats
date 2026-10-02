@@ -12,7 +12,7 @@ setup() {
 
 @test "production PHP dependencies exclude dev packages" {
   APP_ENV=production
-  source "${BATS_TEST_DIRNAME}/../.docker/php/akaunting.sh"
+  source "${BATS_TEST_DIRNAME}/../.docker/php/shell/lib/akaunting.sh"
 
   akaunting_install_php_dependencies
 
@@ -22,7 +22,7 @@ setup() {
 
 @test "local PHP dependencies keep dev packages" {
   APP_ENV=local
-  source "${BATS_TEST_DIRNAME}/../.docker/php/akaunting.sh"
+  source "${BATS_TEST_DIRNAME}/../.docker/php/shell/lib/akaunting.sh"
 
   akaunting_install_php_dependencies
 
@@ -32,7 +32,7 @@ setup() {
 
 @test "asset build selects production command" {
   APP_ENV=production
-  source "${BATS_TEST_DIRNAME}/../.docker/php/akaunting.sh"
+  source "${BATS_TEST_DIRNAME}/../.docker/php/shell/lib/akaunting.sh"
 
   akaunting_build_assets
 
@@ -42,7 +42,7 @@ setup() {
 
 @test "asset build selects development command" {
   APP_ENV=local
-  source "${BATS_TEST_DIRNAME}/../.docker/php/akaunting.sh"
+  source "${BATS_TEST_DIRNAME}/../.docker/php/shell/lib/akaunting.sh"
 
   akaunting_build_assets
 
