@@ -19,6 +19,7 @@ jobs:
 
       - name: Install actionlint
         env:
+          # renovate: datasource=github-releases depName=rhysd/actionlint
           ACTIONLINT_VERSION: v1.7.12
         run: go install "github.com/rhysd/actionlint/cmd/actionlint@${ACTIONLINT_VERSION}"
 
