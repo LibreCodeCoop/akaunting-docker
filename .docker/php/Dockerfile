@@ -1,7 +1,7 @@
 # Build helpers are Docker dependencies so Dependabot can keep them current.
 FROM composer:2@sha256:4d71c3c2109c61d5415544264b59ad4087e4c5b7244481723664138fd36d5040 AS composer
 FROM node:20-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0 AS node
-FROM mlocati/php-extension-installer:2.11.16 AS php-extension-installer
+FROM mlocati/php-extension-installer:2.12.0 AS php-extension-installer
 FROM php:8.3-fpm@sha256:e436b5b6ce4a4e632f97a66ea0ea14c5d001e229e2adc5c8ed2f7b5b5fe5c989 AS runtime
 
 RUN apt-get update \
