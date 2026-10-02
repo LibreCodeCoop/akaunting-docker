@@ -12,23 +12,50 @@ permissions:
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Validate configuration and scripts
         run: |
-          docker compose config >/dev/null
+          docker compose config --quiet
+          docker compose -f docker-compose.yml -f dev/docker-compose.yml config --quiet
           bash -n .docker/php/entrypoint.sh
           bash -n scripts/update-akaunting.sh
           php -l .docker/php/wait-for-db.php
 
       - name: Build branch runtime images
         run: |
-          docker build             -t ghcr.io/librecodecoop/akaunting-docker-php:3             .docker/php
-          docker build             --build-arg NGINX_CONF=http             -t ghcr.io/librecodecoop/akaunting-docker-nginx:3             .docker/nginx
+          docker build \
+            -t ghcr.io/librecodecoop/akaunting-docker-php:3 \
+            .docker/php
+
+          docker build \
+            --build-arg NGINX_CONF=http \
+            -t ghcr.io/librecodecoop/akaunting-docker-nginx:3 \
+            .docker/nginx
+
+      - name: Scan PHP runtime
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/librecodecoop/akaunting-docker-php:3
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
+
+      - name: Scan Nginx runtime
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ghcr.io/librecodecoop/akaunting-docker-nginx:3
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL
 
       - name: Start Akaunting
         env:
@@ -43,10 +70,7 @@ jobs:
               exit 0
             fi
 
-            if ! docker compose ps --status running | grep -q akaunting; then
-              docker compose ps
-            fi
-
+            docker compose ps
             sleep 5
           done
 
@@ -56,7 +80,43 @@ jobs:
       - name: Verify application and patch
         run: |
           docker compose exec -T akaunting.php php artisan --version
-          docker compose exec -T akaunting.php             git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
+          docker compose exec -T akaunting.php \
+            git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
+
+      - name: Verify restart is idempotent
+        run: |
+          env_before="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+
+          docker compose restart akaunting.php
+
+          for attempt in $(seq 1 60); do
+            if docker compose exec -T akaunting.php php artisan --version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+
+          env_after="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+          test "$env_before" = "$env_after"
+
+      - name: Verify missing vendor is recovered without reinstalling
+        run: |
+          env_before="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+
+          docker compose exec -T akaunting.php rm -f vendor/autoload.php
+          docker compose restart akaunting.php
+
+          for attempt in $(seq 1 120); do
+            if docker compose exec -T akaunting.php test -f vendor/autoload.php \
+              && docker compose exec -T akaunting.php php artisan --version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+
+          docker compose exec -T akaunting.php test -f vendor/autoload.php
+          env_after="$(docker compose exec -T akaunting.php sha256sum .env | awk '{print $1}')"
+          test "$env_before" = "$env_after"
 
       - name: Show container logs on failure
         if: failure()
