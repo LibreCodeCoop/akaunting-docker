@@ -2,3 +2,5 @@
 volumes/
 .env
 docker-compose.override.yml
+docker-compose.openbao.yml
+secrets/

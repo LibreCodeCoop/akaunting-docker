@@ -20,12 +20,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Prepare Compose override
-        run: cp docker-compose.override.example.yml docker-compose.override.yml
-
       - name: Validate configuration and scripts
         run: |
           docker compose config --quiet
+          docker compose -f docker-compose.yml -f docker-compose.override.example.yml config --quiet
+          mkdir -p secrets
+          head -c 32 /dev/zero > secrets/openbao_static_seal_key
+          docker compose -f docker-compose.yml -f docker-compose.openbao.example.yml config --quiet
           bash -n .docker/php/shell/entrypoint.sh
           bash -n .docker/php/shell/apply-patches.sh
           bash -n .docker/php/shell/lib/akaunting.sh

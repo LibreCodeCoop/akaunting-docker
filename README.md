@@ -11,30 +11,26 @@ The repository publishes reusable PHP and Nginx runtime images to GHCR. The Akau
 
 ## Quick start
 
-Clone this repository, create your local Compose override from the example, and start the stack:
+Clone this repository and start the base Akaunting stack:
 
 ```bash
-cp docker-compose.override.example.yml docker-compose.override.yml
 docker compose pull
 docker compose up -d
 ```
 
-`docker-compose.override.yml` is intentionally ignored by Git. Docker Compose loads it automatically together with `docker-compose.yml`, so the normal workflow remains:
+The base stack contains Akaunting, Nginx, and MySQL. OpenBao is not an Akaunting
+dependency and is not started unless the environment explicitly opts into the
+optional OpenBao configuration.
+
+For local development helpers such as Mailpit, Dufs, and Composer/npm caches:
 
 ```bash
+cp docker-compose.override.example.yml docker-compose.override.yml
 docker compose up -d
-docker compose down
 ```
 
-The example override adds the development/homologation services used by this project:
-
-- Mailpit;
-- OpenBao;
-- OpenBao initialization for the `nfse` KV v2 mount;
-- Dufs;
-- local Composer and npm caches.
-
-Because the local override is not versioned, each environment can change networks, external database settings, reverse-proxy configuration, ports, domains, or development services without modifying the repository.
+`docker-compose.override.yml` is intentionally ignored by Git, so each
+environment can customize its local deployment without modifying the repository.
 
 Akaunting is installed into `volumes/akaunting` on the first start.
 
@@ -87,10 +83,26 @@ Typical local customizations include:
 - an external MySQL service;
 - local domain names;
 - host port mappings;
-- OpenBao, Mailpit and Dufs settings;
+- Mailpit and Dufs settings;
 - deployment-specific environment variables.
 
-The tracked `docker-compose.override.example.yml` documents the supported development/homologation setup without forcing those choices on every checkout.
+The tracked `docker-compose.override.example.yml` is intentionally OpenBao-free.
+
+### Optional OpenBao setup
+
+OpenBao is used by LibreCode-managed NFS-e deployments, but it is not part of the
+base Akaunting runtime. An optional persistent configuration is provided in
+`docker-compose.openbao.example.yml`.
+
+For an environment that needs it:
+
+```bash
+cp docker-compose.openbao.example.yml docker-compose.override.yml
+```
+
+Then follow [the OpenBao setup guide](docs/openbao.md). The optional stack uses
+persistent PebbleDB storage and Static Key Auto Unseal, so a normal container or
+host restart does not require manually entering unseal shares.
 
 A root-level `.env` is optional and is used by Docker Compose to override variable defaults.
 

@@ -1,0 +1,49 @@
+services:
+  akaunting.php:
+    environment:
+      - OPENBAO_ADDR=${OPENBAO_ADDR:-http://openbao:8200}
+      - OPENBAO_MOUNT=${OPENBAO_MOUNT:-/nfse}
+    depends_on:
+      openbao:
+        condition: service_healthy
+    networks:
+      default:
+      openbao-backend:
+
+  openbao:
+    image: openbao/openbao:2.7.1@sha256:6d2b93856e3fcf7b18ad855a0b51eaba474dc8b79cf554379ea32034797d2acf
+    restart: unless-stopped
+    command:
+      - server
+    environment:
+      - BAO_ADDR=http://127.0.0.1:8200
+    volumes:
+      - ./deploy/openbao/openbao.hcl:/openbao/config/openbao.hcl:ro
+      - ./volumes/openbao:/openbao/file
+    secrets:
+      - openbao_static_seal_key
+    networks:
+      openbao-backend:
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_swappiness: 0
+    healthcheck:
+      test: ["CMD-SHELL", "bao status >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+networks:
+  openbao-backend:
+    driver: bridge
+    internal: true
+
+secrets:
+  openbao_static_seal_key:
+    file: ${OPENBAO_STATIC_SEAL_KEY_FILE:-./secrets/openbao_static_seal_key}
