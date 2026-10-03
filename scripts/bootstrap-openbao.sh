@@ -77,14 +77,10 @@ root_token="${BAO_ROOT_TOKEN:-}"
 if grep -Eq 'Initialized[[:space:]]+false' <<<"${status_output}"; then
     echo
     echo "Initializing OpenBao exactly once..."
-    init_output="$(
-        compose exec -T "${OPENBAO_SERVICE}"             bao operator init             -recovery-shares=1             -recovery-threshold=1
-    )"
+    init_output="$(compose exec -T "${OPENBAO_SERVICE}" bao operator init -recovery-shares=1 -recovery-threshold=1)"
     printf '%s\n' "${init_output}"
 
-    root_token="$(
-        sed -n 's/^Initial Root Token:[[:space:]]*//p' <<<"${init_output}"
-    )"
+    root_token="$(sed -n 's/^Initial Root Token:[[:space:]]*//p' <<<"${init_output}")"
 
     if [ -z "${root_token}" ]; then
         echo "Could not extract the initial root token from initialization output." >&2
@@ -94,11 +90,9 @@ if grep -Eq 'Initialized[[:space:]]+false' <<<"${status_output}"; then
     echo
     echo "Store the recovery key and initial root token outside this VPS."
     echo "Also keep a recovery copy of ${SEAL_KEY_FILE} separately from ${OPENBAO_DATA_DIR}."
-else
-    if [ -z "${root_token}" ]; then
-        read -r -s -p "OpenBao root token for bootstrap: " root_token
-        echo
-    fi
+elif [ -z "${root_token}" ]; then
+    read -r -s -p "OpenBao root token for bootstrap: " root_token
+    echo
 fi
 
 if [ -z "${root_token}" ]; then
@@ -108,22 +102,22 @@ fi
 
 bao_admin token lookup >/dev/null
 
-if ! bao_admin secrets list -format=json | grep -q "\"\${NFSE_MOUNT}/\""; then
+if ! bao_admin secrets list -format=json | grep -Fq "\"$NFSE_MOUNT/\""; then
     bao_admin secrets enable -path="${NFSE_MOUNT}" kv-v2
 else
     echo "KV v2 mount already enabled at ${NFSE_MOUNT}/"
 fi
 
-if ! bao_admin auth list -format=json | grep -q '"approle/"'; then
+if ! bao_admin auth list -format=json | grep -Fq '"approle/"'; then
     bao_admin auth enable approle
 else
     echo "AppRole auth method already enabled."
 fi
 
 printf 'path "%s/*" {\n  capabilities = ["create", "read", "update", "delete", "list"]\n}\n' "${NFSE_MOUNT}" |
-    compose exec -T -e BAO_TOKEN="${root_token}" "${OPENBAO_SERVICE}"         bao policy write "${NFSE_POLICY}" -
+    compose exec -T -e BAO_TOKEN="${root_token}" "${OPENBAO_SERVICE}" bao policy write "${NFSE_POLICY}" -
 
-bao_admin write "auth/approle/role/${NFSE_ROLE}"     token_policies="${NFSE_POLICY}"     token_ttl=1h     token_max_ttl=4h >/dev/null
+bao_admin write "auth/approle/role/${NFSE_ROLE}" token_policies="${NFSE_POLICY}" token_ttl=1h token_max_ttl=4h >/dev/null
 
 role_id="$(bao_admin read -field=role_id "auth/approle/role/${NFSE_ROLE}/role-id")"
 secret_id="$(bao_admin write -field=secret_id -f "auth/approle/role/${NFSE_ROLE}/secret-id")"
@@ -134,11 +128,11 @@ echo "Role ID:   ${role_id}"
 echo "Secret ID: ${secret_id}"
 echo
 echo "Configure Akaunting NFS-e with:"
-echo "  Address:  http://openbao:8200"
-echo "  KV mount: /${NFSE_MOUNT}"
-echo "  Token:    leave empty"
-echo "  Role ID:  value printed above"
-echo "  Secret ID:value printed above"
+echo "  Address:   http://openbao:8200"
+echo "  KV mount:  /${NFSE_MOUNT}"
+echo "  Token:     leave empty"
+echo "  Role ID:   value printed above"
+echo "  Secret ID: value printed above"
 
 unset root_token
 unset BAO_ROOT_TOKEN 2>/dev/null || true
