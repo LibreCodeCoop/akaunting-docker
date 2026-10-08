@@ -25,7 +25,7 @@ optional OpenBao configuration.
 For local development helpers such as Mailpit, Dufs, and Composer/npm caches:
 
 ```bash
-cp docker-compose.override.example.yml docker-compose.override.yml
+cp docker-compose.development.example.yml docker-compose.override.yml
 docker compose up -d
 ```
 
@@ -65,17 +65,19 @@ The update command checks out the selected Akaunting tag, applies the repository
 
 If the patch no longer applies to a new upstream release, the update stops instead of continuing with a partially patched installation.
 
-## Local Compose override
+## Local development
 
 The repository intentionally does **not** version `docker-compose.override.yml`.
 
 Use the tracked example as a starting point:
 
 ```bash
-cp docker-compose.override.example.yml docker-compose.override.yml
+cp docker-compose.development.example.yml docker-compose.override.yml
 ```
 
 Then edit `docker-compose.override.yml` for the local environment. Since Docker Compose loads this file automatically, no extra `-f` arguments are needed.
+
+The development example enables Xdebug with `XDEBUG_MODE=debug`. The base runtime keeps Xdebug disabled, so production requests do not pay debugger startup overhead. Override `XDEBUG_MODE` locally when a different Xdebug mode is needed.
 
 Typical local customizations include:
 
@@ -86,7 +88,7 @@ Typical local customizations include:
 - Mailpit and Dufs settings;
 - deployment-specific environment variables.
 
-The tracked `docker-compose.override.example.yml` is intentionally OpenBao-free.
+The tracked `docker-compose.development.example.yml` is intentionally development-focused and OpenBao-free.
 
 ### Optional OpenBao setup
 
