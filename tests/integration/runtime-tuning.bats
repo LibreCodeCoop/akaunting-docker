@@ -21,10 +21,16 @@ teardown_file() {
 }
 
 @test "base PHP runtime keeps Xdebug disabled" {
-  run docker compose exec -T akaunting.php php -r 'echo ini_get("xdebug.mode");'
+  run docker compose exec -T akaunting.php php -r '
+    $modes = xdebug_info("mode");
+
+    if ($modes !== []) {
+        fwrite(STDERR, "Enabled Xdebug modes: " . implode(", ", $modes) . PHP_EOL);
+        exit(1);
+    }
+  '
 
   [ "$status" -eq 0 ]
-  [ "$output" = "off" ]
 }
 
 @test "public static assets receive browser cache headers" {
