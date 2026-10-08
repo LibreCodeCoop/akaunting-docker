@@ -23,7 +23,7 @@ jobs:
       - name: Validate configuration and scripts
         run: |
           docker compose config --quiet
-          docker compose -f docker-compose.yml -f docker-compose.override.example.yml config --quiet
+          docker compose -f docker-compose.yml -f docker-compose.development.example.yml config --quiet
           mkdir -p secrets
           head -c 32 /dev/zero > secrets/openbao_static_seal_key
           docker compose -f docker-compose.yml -f docker-compose.openbao.example.yml config --quiet
@@ -86,6 +86,17 @@ jobs:
             git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
           docker compose exec -T akaunting.php \
             grep -qx 'local patch applied' /var/www/html/.local-patch-smoke
+
+      - name: Setup Bats
+        uses: bats-core/bats-action@77d6fb60505b4d0d1d73e48bd035b55074bbfb43 # 4.0.0
+        with:
+          support-install: false
+          assert-install: false
+          detik-install: false
+          file-install: false
+
+      - name: Verify production runtime tuning
+        run: bats tests/integration/runtime-tuning.bats
 
       - name: Verify restart is idempotent
         run: |

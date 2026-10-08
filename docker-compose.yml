@@ -29,6 +29,7 @@ services:
       - DB_PREFIX=${DB_PREFIX:-}
       - DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-60}
 
+      - XDEBUG_MODE=${XDEBUG_MODE:-off}
       - XDEBUG_CONFIG
     extra_hosts:
       - host.docker.internal:host-gateway
