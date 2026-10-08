@@ -1,0 +1,25 @@
+services:
+  akaunting.php:
+    volumes:
+      - ~/.composer:/var/www/.composer
+      - ~/.npm:/var/www/.npm/
+    environment:
+      - XDEBUG_MODE=${XDEBUG_MODE:-debug}
+      - MAIL_HOST=${MAIL_HOST:-mailpit}
+      - MAIL_PORT=${MAIL_PORT:-1025}
+
+  mailpit:
+    image: axllent/mailpit:v1.31.3
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8025:8025
+      - 127.0.0.1:1025:1025
+
+  dufs:
+    image: sigoden/dufs:v0.46.0
+    command: /data -A --allow-upload --allow-delete
+    restart: unless-stopped
+    volumes:
+      - ./volumes/webdav:/data
+    ports:
+      - 127.0.0.1:5000:5000
