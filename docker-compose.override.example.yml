@@ -4,6 +4,7 @@ services:
       - ~/.composer:/var/www/.composer
       - ~/.npm:/var/www/.npm/
     environment:
+      - XDEBUG_MODE=${XDEBUG_MODE:-debug}
       - MAIL_HOST=${MAIL_HOST:-mailpit}
       - MAIL_PORT=${MAIL_PORT:-1025}
 
