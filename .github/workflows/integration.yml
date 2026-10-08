@@ -33,7 +33,6 @@ jobs:
           bash -n .docker/php/shell/update-akaunting.sh
           bash -n scripts/update-akaunting.sh
           bash -n scripts/bootstrap-openbao.sh
-          bash -n scripts/test-runtime-tuning.sh
           php -l .docker/php/php/wait-for-db.php
 
       - name: Build branch runtime images
@@ -88,8 +87,16 @@ jobs:
           docker compose exec -T akaunting.php \
             grep -qx 'local patch applied' /var/www/html/.local-patch-smoke
 
+      - name: Setup Bats
+        uses: bats-core/bats-action@77d6fb60505b4d0d1d73e48bd035b55074bbfb43 # 4.0.0
+        with:
+          support-install: false
+          assert-install: false
+          detik-install: false
+          file-install: false
+
       - name: Verify production runtime tuning
-        run: bash scripts/test-runtime-tuning.sh
+        run: bats tests/integration/runtime-tuning.bats
 
       - name: Verify restart is idempotent
         run: |
