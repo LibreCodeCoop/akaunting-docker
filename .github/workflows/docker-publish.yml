@@ -1,6 +1,8 @@
 name: Build and Publish Docker Images
 
 on:
+  schedule:
+    - cron: '23 4 * * *'
   push:
     branches:
       - main
