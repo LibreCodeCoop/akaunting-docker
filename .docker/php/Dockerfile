@@ -2,13 +2,8 @@
 FROM composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac AS composer
 FROM node:20.20.2-bookworm-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0 AS node
 FROM mlocati/php-extension-installer:2.12.0 AS php-extension-installer
-FROM php:8.3.36-fpm-trixie AS runtime
+FROM php:8.3.36-fpm-trixie@sha256:d0dea3f5d95314eac94a732469f4cf0ee658a22c2ce3f2612272b9d5b42d1a72 AS runtime
 
-# Stop builds before publication when upstream PHP still lacks the October 2026 RCE fixes.
-# CVE-2026-109618 / CVE-2026-109619; unsupported PHP branches fail closed.
-# PHP is single-quoted so the shell does not expand PHP variables.
-# hadolint ignore=SC2016
-RUN php -r '$minimum = ["8.2" => "8.2.35", "8.3" => "8.3.36", "8.4" => "8.4.27", "8.5" => "8.5.12"]; $series = PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION; if (!isset($minimum[$series]) || version_compare(PHP_VERSION, $minimum[$series], "<")) { fwrite(STDERR, "Unpatched or unsupported PHP runtime: " . PHP_VERSION . PHP_EOL); exit(1); }'
 
 
 RUN apt-get update \

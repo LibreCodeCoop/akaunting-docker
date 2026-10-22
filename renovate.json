@@ -34,6 +34,18 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG NPM_VERSION=(?<currentValue>\\S+)"
       ],
       "versioningTemplate": "semver-coerced"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.docker\\/php\\/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "FROM php:(?<currentValue>8\\.3\\.\\d+-fpm-trixie)@(?<currentDigest>sha256:[a-f0-9]{64}) AS runtime"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "php",
+      "versioningTemplate": "docker"
     }
   ],
   "packageRules": [
@@ -45,6 +57,19 @@
         "npm"
       ],
       "allowedVersions": "<12"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "php"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "enabled": false
     }
   ]
 }

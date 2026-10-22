@@ -11,14 +11,9 @@ updates:
   - package-ecosystem: docker
     directory: /.docker/php
     schedule:
-      interval: weekly
-    cooldown:
-      default-days: 7
+      interval: daily
     ignore:
       - dependency-name: php
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
       - dependency-name: node
         update-types:
           - version-update:semver-major
