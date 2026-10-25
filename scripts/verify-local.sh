@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Non-destructive checks; no writes, migrations, authentication or fiscal calls.
 set -eu
-project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+project_dir=$(cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$project_dir"
 docker compose config -q
 if ! docker compose exec -T -u www-data akaunting.php php artisan env --no-ansi | grep -q '\[local\]'; then

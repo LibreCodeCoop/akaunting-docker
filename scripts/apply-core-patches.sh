@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Reapply the reviewed local dev compatibility fixes to the exact Core 3.2.4 tag.
 set -eu
-project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+project_dir=$(cd -- "$(dirname -- "$0")/.." && pwd)
 core_dir="$project_dir/volumes/akaunting"
 if ! git -C "$core_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo 'Akaunting Core checkout not found' >&2
