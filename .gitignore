@@ -4,3 +4,6 @@ volumes/
 docker-compose.override.yml
 docker-compose.openbao.yml
 secrets/
+
+# Private host-only backups, credentials and QA evidence inside the project
+/.local-state/
