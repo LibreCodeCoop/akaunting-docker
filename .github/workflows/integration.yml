@@ -32,6 +32,8 @@ jobs:
           bash -n .docker/php/shell/lib/akaunting.sh
           bash -n .docker/php/shell/update-akaunting.sh
           bash -n scripts/update-akaunting.sh
+          bash -n scripts/apply-core-patches.sh
+          bash -n scripts/verify-local.sh
           bash -n scripts/bootstrap-openbao.sh
           php -l .docker/php/php/wait-for-db.php
 
@@ -83,7 +85,12 @@ jobs:
         run: |
           docker compose exec -T akaunting.php php artisan --version
           docker compose exec -T akaunting.php \
-            git apply --reverse --check /opt/akaunting/patches/akaunting-modifications.patch
+            git apply --reverse --check /opt/akaunting/patches/akaunting-3.2.4-api-auth-401.patch
+          docker compose exec -T akaunting.php \
+            git apply --reverse --check /opt/akaunting/patches/akaunting-3.2.4-editor.patch
+          docker compose exec -T akaunting.php \
+            grep -Fq "'throttle:api'," /var/www/html/app/Http/Kernel.php
+          test ! -e patches/akaunting-modifications.patch
           docker compose exec -T akaunting.php \
             grep -qx 'local patch applied' /var/www/html/.local-patch-smoke
 

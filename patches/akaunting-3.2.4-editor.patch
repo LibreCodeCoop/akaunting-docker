@@ -1,0 +1,33 @@
+diff --git a/resources/assets/js/components/AkauntingHtmlEditor.vue b/resources/assets/js/components/AkauntingHtmlEditor.vue
+index f2e17f27..9be5124b 100644
+--- a/resources/assets/js/components/AkauntingHtmlEditor.vue
++++ b/resources/assets/js/components/AkauntingHtmlEditor.vue
+@@ -85,19 +85,22 @@ export default {
+ 
+         content (newVal) {
+             // #337y1z3 This issue reason <p> tag broken email template
+-            newVal = newVal.replace(/(<p[^>]+?>|<p>|<\/p>)/img, "");
++            let processedVal = newVal.replace(/(<p[^>]+?>|<p>|<\/p>)/img, "");
+ 
+             let regex = /style="(.*?)"/gm;
+             let subst = ``;
+ 
+-            newVal = newVal.replace(regex, subst);
++            processedVal = processedVal.replace(regex, subst);
+ 
+-            this.content = newVal;
+-
+-            this.$emit('input', newVal);
++            // Emit the processed value without reassigning to avoid recursive watcher calls
++            this.$emit('input', processedVal);
+ 
++            // Only focus on tooltip if it exists and the input has a value
+             document.querySelectorAll('.ql-tooltip').forEach((tooltip) => {
+-                tooltip.querySelector('input').focus();
++                const input = tooltip.querySelector('input');
++                if (input) {
++                    input.focus();
++                }
+             });
+         },
+     },

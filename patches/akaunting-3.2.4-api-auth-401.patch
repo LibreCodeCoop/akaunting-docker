@@ -1,0 +1,15 @@
+diff --git a/app/Exceptions/Handler.php b/app/Exceptions/Handler.php
+index 5152b5ee..58fcea27 100644
+--- a/app/Exceptions/Handler.php
++++ b/app/Exceptions/Handler.php
+@@ -358,7 +358,9 @@ class Handler extends ExceptionHandler
+     {
+         $code = null;
+ 
+-        if ($exception instanceof ValidationException) {
++        if ($exception instanceof AuthenticationException) {
++            $code = 401;
++        } elseif ($exception instanceof ValidationException) {
+             $code = $exception->status;
+         } elseif ($exception instanceof HttpExceptionInterface) {
+             $code = $exception->getStatusCode();
