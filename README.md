@@ -108,6 +108,13 @@ host restart does not require manually entering unseal shares.
 
 A root-level `.env` is optional and is used by Docker Compose to override variable defaults.
 
+For the shared LibreCode NFS-e **local** development environment, see
+[Local NFS-e homologation](docs/local-nfse-homologation.md). The guide records
+tested versions, scoped dependencies, credentials handling, rollback and safe
+smoke tests. Place all host-specific backups/evidence in the ignored
+`.local-state/` folder within this repository; never copy them to a home-level
+backup directory.
+
 Akaunting keeps its own application environment file at:
 
 ```text
@@ -155,7 +162,7 @@ To use an external database, override `DB_HOST`, credentials and networks as nee
 
 ## Application patch
 
-`patches/akaunting-modifications.patch` contains the patch distributed with this repository. Deployment-specific patches belong in `volumes/patches/`, which is ignored by Git and mounted read-only into the PHP container.
+`patches/legacy/akaunting-modifications.patch` retains the former API-throttling bypass for audit, **not** application. The current Core 3.2.4 compatibility patches are the reviewed `patches/akaunting-3.2.4-*.patch` files. Deployment-specific patches belong in `volumes/patches/`, which is ignored by Git and mounted read-only into the PHP container.
 
 Patches are applied in two stages:
 
