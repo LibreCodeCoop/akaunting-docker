@@ -18,9 +18,10 @@ docker compose pull
 docker compose up -d
 ```
 
-The base stack contains Akaunting, Nginx, and MySQL. OpenBao is not an Akaunting
-dependency and is not started unless the environment explicitly opts into the
-optional OpenBao configuration.
+The base stack contains Akaunting, Nginx and MySQL. Third-party modules
+manage their own additional infrastructure. For Brazilian NFS-e and its
+optional Vault/OpenBao integration, see the
+[akaunting-nfse module](https://github.com/LibreCodeCoop/akaunting-nfse).
 
 For local development helpers such as Mailpit, Dufs, and Composer/npm caches:
 
@@ -88,32 +89,7 @@ Typical local customizations include:
 - Mailpit and Dufs settings;
 - deployment-specific environment variables.
 
-The tracked `docker-compose.development.example.yml` is intentionally development-focused and OpenBao-free.
-
-### Optional OpenBao setup
-
-OpenBao is used by LibreCode-managed NFS-e deployments, but it is not part of the
-base Akaunting runtime. An optional persistent configuration is provided in
-`docker-compose.openbao.example.yml`.
-
-For an environment that needs it:
-
-```bash
-cp docker-compose.openbao.example.yml docker-compose.override.yml
-```
-
-Then follow [the OpenBao setup guide](docs/openbao.md). The optional stack uses
-persistent PebbleDB storage and Static Key Auto Unseal, so a normal container or
-host restart does not require manually entering unseal shares.
-
 A root-level `.env` is optional and is used by Docker Compose to override variable defaults.
-
-For the shared LibreCode NFS-e **local** development environment, see
-[Local NFS-e homologation](docs/local-nfse-homologation.md). The guide records
-tested versions, scoped dependencies, credentials handling, rollback and safe
-smoke tests. Place all host-specific backups/evidence in the ignored
-`.local-state/` folder within this repository; never copy them to a home-level
-backup directory.
 
 Akaunting keeps its own application environment file at:
 
