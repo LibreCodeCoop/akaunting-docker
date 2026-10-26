@@ -54,3 +54,19 @@ teardown_file() {
   [ "$status" -eq 0 ]
   [ "$output" = "403" ]
 }
+
+@test "FastCGI preserves the public Host header including its nonstandard port" {
+  run curl --fail --silent --show-error "${RUNTIME_TEST_BASE_URL}/auth/login"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"${RUNTIME_TEST_BASE_URL}/public/js/auth/"* ]]
+}
+
+@test "private Core source and certificate paths never serve plaintext" {
+  for path in package.json composer.json resources/assets/js/components/AkauntingHtmlEditor.vue client.key.pem; do
+    run curl --silent --output /dev/null --write-out '%{http_code}' "${RUNTIME_TEST_BASE_URL}/${path}"
+
+    [ "$status" -eq 0 ]
+    [ "$output" = "403" ]
+  done
+}
