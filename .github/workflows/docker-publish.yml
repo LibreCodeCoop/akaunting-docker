@@ -9,6 +9,11 @@ on:
       - main
   workflow_dispatch:
 
+# Prevent a slower previous main push from replacing mutable :3 tags after a newer merge.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME_PHP: ${{ github.repository }}-php
