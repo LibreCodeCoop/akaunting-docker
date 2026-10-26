@@ -20,6 +20,3 @@ idempotently at setup by the versioned Docker runtime, with conflict detection:
 its previous Core behavior disabled API request throttling and no longer matches
 Core 3.2.4. Historical changes are preserved for audit. Do not move it back to
 this directory without a new technical and security review.
-
-See the repository README for Core compatibility, patch application and
-CI validation. NFS-e-specific integration checks belong to the NFS-e module.
