@@ -30,4 +30,8 @@ if [ "${fresh_install}" = true ]; then
     akaunting_fix_ownership
 fi
 
+# Repair root-owned Laravel cache directories on every start. A previous
+# administrative command must not prevent the web user from writing cache.
+akaunting_repair_runtime_cache_permissions
+
 exec php-fpm

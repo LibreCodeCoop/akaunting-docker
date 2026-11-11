@@ -96,6 +96,19 @@ akaunting_run_upgrade() {
     php artisan migrate --force
 }
 
+# A one-off root Artisan call can create 0755 cache directories owned by root,
+# while PHP-FPM writes as www-data. Restore only runtime cache ownership on
+# startup. Do not traverse the full application volume or alter financial files.
+akaunting_repair_runtime_cache_permissions() {
+    local cache_dir="${APP_ROOT}/storage/framework/cache"
+    if [ "$(id -u)" -ne 0 ] || [ ! -d "${cache_dir}" ]; then
+        return 0
+    fi
+
+    find "${cache_dir}" -xdev \( ! -user www-data -o ! -group www-data \) \
+        -exec chown www-data:www-data {} +
+}
+
 akaunting_fix_ownership() {
     chown -R www-data:www-data "${APP_ROOT}"
 }
