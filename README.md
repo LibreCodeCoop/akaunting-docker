@@ -66,6 +66,20 @@ The update command checks out the selected Akaunting tag, applies the repository
 
 If the patch no longer applies to a new upstream release, the update stops instead of continuing with a partially patched installation.
 
+Use the `www-data` wrapper for one-off Artisan commands (do not invoke
+`php artisan` as root inside the PHP container):
+
+```bash
+bash scripts/artisan.sh about
+bash scripts/artisan.sh route:list --path=api
+```
+
+The PHP-FPM worker writes Laravel's cache as `www-data`. Root-run Artisan
+commands may create root-owned `0755` cache subdirectories, causing HTTP 500.
+The container corrects ownership of **only runtime cache paths** on startup,
+without recursively rewriting the application or financial data.
+
+
 ## Local development
 
 The repository intentionally does **not** version `docker-compose.override.yml`.

@@ -55,6 +55,10 @@ akaunting_fix_ownership() {
   record_lifecycle ownership
 }
 
+akaunting_repair_runtime_cache_permissions() {
+  record_lifecycle cache-ownership
+}
+
 akaunting_update_checkout() {
   record_lifecycle checkout
 }

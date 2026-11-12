@@ -24,7 +24,7 @@ setup() {
   run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
-  [ "$(cat "${TEST_LIFECYCLE_LOG}")" = "patches" ]
+  [ "$(cat "${TEST_LIFECYCLE_LOG}")" = $'patches\ncache-ownership' ]
   grep -q '^php-fpm ' "${CALL_LOG}"
 }
 
@@ -32,7 +32,7 @@ setup() {
   run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
-  expected=$'clone\npatches\nphp-dependencies\ninstall\nownership'
+  expected=$'clone\npatches\nphp-dependencies\ninstall\nownership\ncache-ownership'
   [ "$(cat "${TEST_LIFECYCLE_LOG}")" = "$expected" ]
 }
 
@@ -42,7 +42,7 @@ setup() {
   run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
-  expected=$'patches\nphp-dependencies'
+  expected=$'patches\nphp-dependencies\ncache-ownership'
   [ "$(cat "${TEST_LIFECYCLE_LOG}")" = "$expected" ]
 }
 
@@ -54,6 +54,6 @@ setup() {
   run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
 
   [ "$status" -eq 0 ]
-  expected=$'patches\ninstall'
+  expected=$'patches\ninstall\ncache-ownership'
   [ "$(cat "${TEST_LIFECYCLE_LOG}")" = "$expected" ]
 }
