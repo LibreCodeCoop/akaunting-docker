@@ -59,6 +59,12 @@ akaunting_repair_runtime_cache_permissions() {
   record_lifecycle cache-ownership
 }
 
+akaunting_register_guest_theme_provider() {
+  if [[ -f "${APP_ROOT}/modules/Theme/scripts/register_guest_provider.php" ]]; then
+    record_lifecycle guest-theme
+  fi
+}
+
 akaunting_update_checkout() {
   record_lifecycle checkout
 }

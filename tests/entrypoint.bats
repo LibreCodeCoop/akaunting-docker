@@ -57,3 +57,17 @@ setup() {
   expected=$'patches\ninstall\ncache-ownership'
   [ "$(cat "${TEST_LIFECYCLE_LOG}")" = "$expected" ]
 }
+
+
+@test "installed public Theme provider is re-registered before PHP-FPM starts" {
+  touch "${TEST_APP_ROOT}/artisan" "${TEST_APP_ROOT}/.env"
+  mkdir -p "${TEST_APP_ROOT}/vendor" "${TEST_APP_ROOT}/modules/Theme/scripts"
+  touch "${TEST_APP_ROOT}/vendor/autoload.php"
+  touch "${TEST_APP_ROOT}/modules/Theme/scripts/register_guest_provider.php"
+
+  run bash "${BATS_TEST_DIRNAME}/../.docker/php/shell/entrypoint.sh"
+
+  [ "$status" -eq 0 ]
+  [ "$(cat "${TEST_LIFECYCLE_LOG}")" = $'patches\ncache-ownership\nguest-theme' ]
+  grep -q '^php-fpm ' "${CALL_LOG}"
+}

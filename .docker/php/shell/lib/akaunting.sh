@@ -25,6 +25,22 @@ akaunting_apply_patches() {
     )
 }
 
+# Early public Theme provider is not a regular Akaunting company module.
+# It must be rediscovered after Composer rebuilds Laravel package manifests.
+# Guarded: ordinary installations without the Theme module stay unchanged.
+akaunting_register_guest_theme_provider() {
+    local installer="${APP_ROOT}/modules/Theme/scripts/register_guest_provider.php"
+    local manifest="${APP_ROOT}/bootstrap/cache/packages.php"
+
+    if [[ ! -f "${installer}" || ! -f "${manifest}" ]]; then
+        return 0
+    fi
+
+    # Modules belong to the web application's trust boundary. Never execute
+    # a module-owned installer as container root on startup.
+    runuser -u www-data -- php "${installer}" "${APP_ROOT}" install
+}
+
 akaunting_install_php_dependencies() {
     akaunting_cd
 
@@ -35,6 +51,7 @@ akaunting_install_php_dependencies() {
     fi
 
     composer dump-autoload
+    akaunting_register_guest_theme_provider
 }
 
 akaunting_build_assets() {
@@ -86,6 +103,7 @@ akaunting_refresh_dependencies() {
     fi
 
     akaunting_build_assets
+    akaunting_register_guest_theme_provider
 }
 
 akaunting_run_upgrade() {

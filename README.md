@@ -203,3 +203,17 @@ docker compose ps
 docker compose logs
 ```
 
+
+### Optional Theme public-login bootstrap
+
+The independent Theme module has an early Laravel provider for public login,
+which is normally registered by Composer package discovery. For module-directory
+installations, the PHP entrypoint re-registers it **only when the Theme module's
+installer and Laravel's package manifest are present**. The same registration
+is performed after the managed Composer install/update paths, since Composer
+may rebuild the package manifest. The module-owned installer runs as the
+unprivileged application user, not as root. Other Akaunting deployments are
+unaffected when Theme is absent.
+
+After any **manual** Composer operation outside the managed lifecycle, run the
+Theme module's installer again to refresh the generated provider manifest.
